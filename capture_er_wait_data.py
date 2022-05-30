@@ -22,10 +22,10 @@ if __name__ == "__main__":
     chromedriver_path = r'C:\Programming\YYCErWaitTimes\chromedriver_win32\chromedriver.exe'
     url = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
 
-    driver = webdriver.Chrome(chrome_options=options, executable_path=chromedriver_path)
-
     # Run forever
     while True:
+
+        driver = webdriver.Chrome(chrome_options=options, executable_path=chromedriver_path)
 
         # Get page and wait for JS to load
         # TODO: Check 3 seconds if can be reduced
