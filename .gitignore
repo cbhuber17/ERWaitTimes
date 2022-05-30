@@ -1,0 +1,8 @@
+*.ipynb
+*.html
+*.csv
+.idea
+.ipynb_checkpoints
+__pycache__
+chromedriver_win32
+waittimes
