@@ -26,12 +26,15 @@ layout = go.Layout(
     yaxis_title={'text': "Wait Time in Minutes"},
     legend_title={'text': "Calgary Hospitals"},
     font=dict(
-        family="Arial",
+        family="Verdana",
         size=20,
         color="Black"
     ),
     paper_bgcolor='#F5F5F5',
-    plot_bgcolor='#F0F0F0'
+    plot_bgcolor='#D6D6D6',
+    xaxis={'range': [0, len(df2.index)]},
+    yaxis={'range': [0, 10*60]},
+
 )
 
 fig = go.Figure(data=traces, layout=layout)
