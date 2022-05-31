@@ -9,6 +9,7 @@ from selenium.webdriver.chrome.options import Options
 stats_file_name = "hospital_stats.csv"
 CRLF = "\r\n"
 polling_interval = 3600  # seconds
+date_time_format = "%a %b %d %Y - %H:%M:%S"
 
 if __name__ == "__main__":
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
 
         # Combine data with current time
         hospitals_and_wait_times = dict(zip(hospitals, wait_times))
-        now = datetime.datetime.now().strftime("%a %m %d %Y - %H:%M:%S")
+        now = datetime.datetime.now().strftime(date_time_format)
         current_time = {"time_stamp": now}
         result = {**current_time, **hospitals_and_wait_times}
 
