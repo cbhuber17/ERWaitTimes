@@ -51,10 +51,18 @@ layout = go.Layout(
     # TODO: At some point with too much time data, limit the x-axis range
     # xaxis={'range': [0, len(df2.index)]},
     yaxis={'range': [0, 10]},
+    spikedistance=1000,
+    hoverdistance=100,
+    hoverlabel=dict(
+        bgcolor="grey",
+        font_size=16,
+        font_family="Verdana"
+    )
 
 )
 
 fig = go.Figure(data=traces, layout=layout)
-fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White')
-fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White')
+fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True, spikecolor="black",
+                 spikesnap="cursor", spikemode="across", spikethickness=2)
+fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True, spikecolor="black", spikethickness=2)
 pyo.plot(fig, filename='testing.html')
