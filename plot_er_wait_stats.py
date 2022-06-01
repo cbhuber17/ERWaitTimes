@@ -49,7 +49,7 @@ layout = go.Layout(
 
     # TODO: At some point with too much time data, limit the x-axis range
     # xaxis={'range': [0, len(df2.index)]},
-    yaxis={'range': [0, 10]},
+    yaxis={'range': [0, 20]},
     spikedistance=1000,
     hoverdistance=100,
     hoverlabel=dict(
