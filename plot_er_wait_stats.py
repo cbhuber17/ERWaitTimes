@@ -22,7 +22,6 @@ for hospital in df2.columns:
     df2[hospital] = df2[hospital].astype("float64")
     df2[hospital] /= 60.0
 
-
 traces = [go.Scatter(
     x=df2['time_stamp'],
     y=df2[hospital_name],
@@ -58,11 +57,11 @@ layout = go.Layout(
         font_size=16,
         font_family="Verdana"
     )
-
 )
 
 fig = go.Figure(data=traces, layout=layout)
 fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True, spikecolor="black",
                  spikesnap="cursor", spikemode="across", spikethickness=2)
 fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True, spikecolor="black", spikethickness=2)
+fig.update_traces(hovertemplate='<i>Wait Time:</i> %{y:.1f} hrs')
 pyo.plot(fig, filename='testing.html')
