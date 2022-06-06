@@ -53,9 +53,11 @@ layout = go.Layout(
     spikedistance=1000,
     hoverdistance=100,
     hoverlabel=dict(
-        bgcolor="grey",
-        font_size=16,
-        font_family="Verdana"
+        font=dict(
+            size=16,
+            family="Verdana",
+            color="white"
+        )
     )
 )
 
@@ -63,5 +65,5 @@ fig = go.Figure(data=traces, layout=layout)
 fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True, spikecolor="black",
                  spikesnap="cursor", spikemode="across", spikethickness=2)
 fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True, spikecolor="black", spikethickness=2)
-fig.update_traces(hovertemplate='<i>Wait Time:</i> %{y:.1f} hrs')
+fig.update_traces(hovertemplate='Wait: %{y:.1f} hrs at %{x}<extra></extra>')
 pyo.plot(fig, filename='testing.html')
