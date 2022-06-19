@@ -8,6 +8,8 @@ import csv
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 POLLING_INTERVAL = 3600  # seconds
 DATE_TIME_FORMAT = "%a %b %d %Y - %H:%M:%S"
@@ -29,9 +31,7 @@ class ErWait:
         self.options.add_argument('--disable-gpu')
         self.options.add_argument("--log-level=3")
 
-        # Hard code for now
-        # TODO: Chromedriver support on linux for heroku and relative pathing
-        self.chromedriver_path = r'C:\Programming\YYCErWaitTimes\chromedriver_win32\chromedriver.exe'
+        # ER Wait times URL for alberta
         self.url = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
 
         self.stats_file_name = f"{self.city}_hospital_stats.csv"
@@ -43,7 +43,7 @@ class ErWait:
         :param: wait_secs (int) How many seconds to wait after the driver has launched.  3 secs seems good.
         :return: page HTML source (str)"""
 
-        driver = webdriver.Chrome(chrome_options=self.options, executable_path=self.chromedriver_path)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=self.options)
 
         # Get page and wait for JS to load
         driver.get(self.url)
