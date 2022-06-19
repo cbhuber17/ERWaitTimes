@@ -1,57 +1,98 @@
+"""Module to capture ER wait data from various hospitals in Alberta."""
+
 import time
 import datetime
+import threading
 import os
 import csv
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-stats_file_name = "hospital_stats.csv"
-CRLF = "\r\n"
-polling_interval = 3600  # seconds
-date_time_format = "%a %b %d %Y - %H:%M:%S"
+POLLING_INTERVAL = 3600  # seconds
+DATE_TIME_FORMAT = "%a %b %d %Y - %H:%M:%S"
 
-if __name__ == "__main__":
 
-    # Chrome driver options
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument("--log-level=3")
+class ErWait:
+    """Class to capture data of a specific city. It is intended to run as separate threads."""
 
-    # Hard code for now
-    chromedriver_path = r'C:\Programming\YYCErWaitTimes\chromedriver_win32\chromedriver.exe'
-    url = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
+    def __init__(self, city):
 
-    # Run forever
-    while True:
+        if city.lower() == "calgary" or city.lower() == "edmonton":
+            self.city = city
+        else:
+            raise ValueError('City should either be "Calgary" or "Edmonton"')
 
-        driver = webdriver.Chrome(chrome_options=options, executable_path=chromedriver_path)
+        # Chrome driver options
+        self.options = Options()
+        self.options.add_argument('--headless')
+        self.options.add_argument('--disable-gpu')
+        self.options.add_argument("--log-level=3")
+
+        # Hard code for now
+        # TODO: Chromedriver support on linux for heroku and relative pathing
+        self.chromedriver_path = r'C:\Programming\YYCErWaitTimes\chromedriver_win32\chromedriver.exe'
+        self.url = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
+
+        self.stats_file_name = f"{self.city}_hospital_stats.csv"
+
+    # -------------------------------------------------------------------------------------------------
+
+    def _run_driver(self, wait_secs):
+        """Runs the Chrome webdriver and returns the HTML of the page (doc) self.url in the constructor.
+        :param: wait_secs (int) How many seconds to wait after the driver has launched.  3 secs seems good.
+        :return: page HTML source (str)"""
+
+        driver = webdriver.Chrome(chrome_options=self.options, executable_path=self.chromedriver_path)
 
         # Get page and wait for JS to load
-        driver.get(url)
-        time.sleep(3)
+        driver.get(self.url)
+        time.sleep(wait_secs)
 
-        # Grab the HTML
+        # Grab the HTML and stop driver
         page = driver.page_source
-
         driver.quit()
 
-        # Put it in the parser
-        doc = BeautifulSoup(page, "html.parser")
+        return page
 
-        # Grab Calgary area only
-        # TODO: Expand to Edmonton
-        div_calgary = doc.find("div", class_="cityContent-calgary")
-        calgary_hospitals_div = div_calgary.find_all(class_="hospitalName")
-        wait_times_div = div_calgary.find_all(class_="wt-times")
+    # -------------------------------------------------------------------------------------------------
+
+    def _get_div_city(self, doc):
+        """Returns a div of the city containing the hospital data.
+        :param: doc (str) The HTML source of the page
+        :return: doc.find (str) of the city of the hospital."""
+
+        return doc.find("div", class_=f"cityContent-{self.city.lower()}")
+
+    # -------------------------------------------------------------------------------------------------
+
+    def _get_hospitals(self, doc):
+        """Returns a list of hospitals available that have ER wait times.
+        :param: doc (str) The HTML source of the page
+        :return: A list of hospitals (list)"""
 
         hospitals = []
-        wait_times = []
+
+        div_city = self._get_div_city(doc)
+        city_hospitals_div = div_city.find_all(class_="hospitalName")
 
         # Capture hospital names
-        for hospital in calgary_hospitals_div:
+        for hospital in city_hospitals_div:
             hospitals.append(hospital.find("a").contents[0])
+
+        return hospitals
+
+    # -------------------------------------------------------------------------------------------------
+
+    def _get_wait_times(self, doc):
+        """Returns a list of wait times for each hospital.
+        :param: doc (str) The HTML source of the page
+        :return: A list of wait times (in minutes)"""
+
+        wait_times = []
+        div_city = self._get_div_city(doc)
+
+        wait_times_div = div_city.find_all(class_="wt-times")
 
         # Capture wait times for each hospital
         for wait_time in wait_times_div:
@@ -60,32 +101,96 @@ if __name__ == "__main__":
             if len(wait_time_strong_tags) == 2:
                 hours_wait = int(wait_time_strong_tags[0].string)
                 minutes_wait = int(wait_time_strong_tags[1].string)
-                wait_times.append(hours_wait*60 + minutes_wait)
+                wait_times.append(hours_wait * 60 + minutes_wait)
             else:
                 wait_times.append(None)
 
-        # Combine data with current time
-        hospitals_and_wait_times = dict(zip(hospitals, wait_times))
-        now = datetime.datetime.now().strftime(date_time_format)
+        return wait_times
+
+    # -------------------------------------------------------------------------------------------------
+
+    def _zip_data_and_current_time(self, data1, data2):
+        """Helper function to zip two lists and a dictionary of the current time in one dict.
+        :param: data1 (list)
+        :param: data2 (list)
+        :return: a zipped dict of data1, dat2, and the current time."""
+
+        temp = dict(zip(data1, data2))
+        now = datetime.datetime.now().strftime(DATE_TIME_FORMAT)
         current_time = {"time_stamp": now}
-        result = {**current_time, **hospitals_and_wait_times}
+
+        return {**current_time, **temp}, now
+
+    # -------------------------------------------------------------------------------------------------
+
+    def _write_csv(self, data):
+        """Writes data to CSV file.
+        :param: data (dict) Data to be written to csv file.  File name of csv file is dictated in the constructor.
+        :return: None"""
 
         # Output to csv file, this is the header of the file
-        fields = list(result.keys())
+        fields = list(data.keys())
 
         # Create new file if one not exists
-        if not os.path.isfile(stats_file_name):
-            with open(stats_file_name, 'w') as fout:
+        if not os.path.isfile(self.stats_file_name):
+            with open(self.stats_file_name, 'w') as fout:
                 writer = csv.DictWriter(fout, fieldnames=fields)
                 writer.writeheader()
-                writer.writerows([result])
+                writer.writerows([data])
 
         # Otherwise append data
         else:
-            with open(stats_file_name, 'a') as fout:
+            with open(self.stats_file_name, 'a') as fout:
                 writer = csv.DictWriter(fout, fieldnames=fields)
-                writer.writerows([result])
+                writer.writerows([data])
 
-        # Wait to poll again
-        print(f"Polled website at: {now}.  Waiting {polling_interval} seconds.")
-        time.sleep(polling_interval)
+    # -------------------------------------------------------------------------------------------------
+
+    def capture_data(self):
+        """Runs forever capturing ER wait time data for the particular city.  Ideally to be run as a separate thread
+        process.
+        :param: None
+        :return: None"""
+
+        # Run forever
+        while True:
+            # Grab the HTML
+            page = self._run_driver(3)
+
+            # Put it in the parser
+            doc = BeautifulSoup(page, "html.parser")
+
+            hospitals = self._get_hospitals(doc)
+            wait_times = self._get_wait_times(doc)
+
+            # Combine data with current time
+            wait_data, now = self._zip_data_and_current_time(hospitals, wait_times)
+
+            # Output to csv file
+            self._write_csv(wait_data)
+
+            # Wait to poll again
+            print(f"Thread: {threading.current_thread().name} and OS PID: {os.getpid()}.")
+            print(f"Polled {self.city} website at: {now}.  Waiting {POLLING_INTERVAL} seconds.")
+            time.sleep(POLLING_INTERVAL)
+
+    # -------------------------------------------------------------------------------------------------
+
+
+if __name__ == "__main__":
+
+    calgary_data = ErWait("Calgary")
+    edmonton_data = ErWait("Edmonton")
+
+    print("Data capturing staring. Press CTRL+BREAK to terminate.")
+
+    # Separate entity threading
+    t_yyc = threading.Thread(target=calgary_data.capture_data)
+    t_yeg = threading.Thread(target=edmonton_data.capture_data)
+
+    t_yyc.start()
+    t_yeg.start()
+
+    # Threads will run forever, but this main thread keeps an eye on it
+    t_yyc.join()
+    t_yeg.join()

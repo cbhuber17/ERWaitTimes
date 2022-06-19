@@ -1,14 +1,15 @@
+"""TBD."""
+
 import plotly.offline as pyo
 import plotly.graph_objs as go
 import pandas as pd
-from capture_er_wait_data import stats_file_name
-from capture_er_wait_data import date_time_format
+from capture_er_wait_data import DATE_TIME_FORMAT
 
 FONT_FAMILY = "Helvetica"
 HTML_FILE = "yyc_er_wait_times.html"
 
 
-def plot_line(stats_file_name, plot_offline):
+def plot_line(stats_file_name, plot_offline=True):
     """TBD."""
 
     # Capture data
@@ -19,7 +20,7 @@ def plot_line(stats_file_name, plot_offline):
     df2 = df2.dropna(axis=1, how='all')
 
     # Convert all string to datetime objects
-    df2.loc[:, 'time_stamp'] = pd.to_datetime(df2['time_stamp'], format=date_time_format)
+    df2.loc[:, 'time_stamp'] = pd.to_datetime(df2['time_stamp'], format=DATE_TIME_FORMAT)
 
     # Convert to hours for better readability
     for hospital in df2.columns:
@@ -82,4 +83,4 @@ def plot_line(stats_file_name, plot_offline):
 
 
 if __name__ == "__main__":
-    plot_line(stats_file_name, True)
+    plot_line(stats_file_name)
