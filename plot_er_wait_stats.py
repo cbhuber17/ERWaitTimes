@@ -6,14 +6,15 @@ import pandas as pd
 from capture_er_wait_data import DATE_TIME_FORMAT
 
 FONT_FAMILY = "Helvetica"
-HTML_FILE = "yyc_er_wait_times.html"
 
 
-def plot_line(stats_file_name, plot_offline=True):
+def plot_line(city, plot_offline=True):
     """TBD."""
 
+    html_file = city + "_er_wait_times.html"
+
     # Capture data
-    df = pd.read_csv(stats_file_name)
+    df = pd.read_csv(city + "_hospital_stats.csv")
 
     # Remove any N/A for now, out of town hospitals don't report their data
     df2 = df.copy()
@@ -39,14 +40,14 @@ def plot_line(stats_file_name, plot_offline=True):
     ) for hospital_name in df2.columns if hospital_name != 'time_stamp']
 
     layout = go.Layout(
-        title={'text': 'Calgary ER Wait Times',
+        title={'text': city + ' ER Wait Times',
                'x': 0.5,
                'y': 0.95,
                'xanchor': 'center',
                'yanchor': 'top'},
         xaxis_title={'text': "Date/Time"},
         yaxis_title={'text': "Wait Time in Hours"},
-        legend_title={'text': "Calgary Hospitals"},
+        legend_title={'text': city + " Hospitals"},
         font=dict(
             family=FONT_FAMILY,
             size=20,
@@ -77,10 +78,11 @@ def plot_line(stats_file_name, plot_offline=True):
     fig.update_traces(hovertemplate='Wait: %{y:.1f} hrs at %{x}<extra></extra>')
 
     if plot_offline:
-        pyo.plot(fig, filename=HTML_FILE)
+        pyo.plot(fig, filename=html_file)
 
     return fig
 
 
 if __name__ == "__main__":
-    plot_line(stats_file_name)
+    plot_line("Calgary")
+    plot_line("Edmonton")
