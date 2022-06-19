@@ -29,7 +29,6 @@ if __name__ == "__main__":
         driver = webdriver.Chrome(chrome_options=options, executable_path=chromedriver_path)
 
         # Get page and wait for JS to load
-        # TODO: Check 3 seconds if can be reduced
         driver.get(url)
         time.sleep(3)
 
@@ -42,6 +41,7 @@ if __name__ == "__main__":
         doc = BeautifulSoup(page, "html.parser")
 
         # Grab Calgary area only
+        # TODO: Expand to Edmonton
         div_calgary = doc.find("div", class_="cityContent-calgary")
         calgary_hospitals_div = div_calgary.find_all(class_="hospitalName")
         wait_times_div = div_calgary.find_all(class_="wt-times")
