@@ -20,7 +20,9 @@ def plot_line(city, plot_offline=True, dark_mode=True):
                   'hover': ('white', 'black'),
                   'spikecolor': ('black', 'white'),
                   'paper_bgcolor': ('white', 'black'),
-                  'plot_bgcolor': ('#D6D6D6', '#3A3F44')}
+                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
+                  'range_bgcolor': ('lawngreen', 'navy'),
+                  'range_border_color': ('black', 'orange')}
 
     html_file = city + "_er_wait_times.html"
 
@@ -84,13 +86,16 @@ def plot_line(city, plot_offline=True, dark_mode=True):
                      spikecolor=color_mode['spikecolor'][dark_mode], spikesnap="cursor", spikemode="across",
                      spikethickness=2,
                      rangeselector=dict(
+                         bgcolor=color_mode['range_bgcolor'][dark_mode],
+                         bordercolor=color_mode['range_border_color'][dark_mode],
+                         borderwidth=1,
                          buttons=list([
                              dict(count=1, label="1d", step="day", stepmode="backward"),
                              dict(count=7, label="1w", step="day", stepmode="backward"),
                              dict(count=14, label="2w", step="day", stepmode="backward"),
                              dict(count=1, label="1m", step="month", stepmode="backward"),
                              dict(count=1, label="YTD", step="year", stepmode="todate"),
-                             dict(step="all")
+                             dict(step="all", label="All")
                          ])
                      )
                      )
