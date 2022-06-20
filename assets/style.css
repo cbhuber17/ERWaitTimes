@@ -1,0 +1,18 @@
+#line-yyc {
+    height: 100vh;
+}
+
+#line-yeg {
+    height: 100vh;
+}
+
+@media only screen and (max-device-height: 420px) {
+
+    #line-yyc {
+        height: 150vh;
+    }
+
+    #line-yeg {
+        height: 170vh;
+    }
+}
