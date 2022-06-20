@@ -1,4 +1,4 @@
-"""TBD."""
+"""Contains routines/functions for plotting the ER wait time data."""
 
 import plotly.offline as pyo
 import plotly.graph_objs as go
@@ -8,8 +8,19 @@ from capture_er_wait_data import DATE_TIME_FORMAT
 FONT_FAMILY = "Helvetica"
 
 
-def plot_line(city, plot_offline=True):
-    """TBD."""
+# -------------------------------------------------------------------------------------------------
+
+def plot_line(city, plot_offline=True, dark_mode=True):
+    """Plots the line plot of the ER wait times.
+    :param: plot_offline (bool) If an offline plot is to be generated (default: True)
+    :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
+    :return: (go.Figure) object"""
+
+    color_mode = {'title': ('black', 'white'),
+                  'hover': ('white', 'black'),
+                  'spikecolor': ('black', 'white'),
+                  'paper_bgcolor': ('white', 'black'),
+                  'plot_bgcolor': ('#D6D6D6', '#3A3F44')}
 
     html_file = city + "_er_wait_times.html"
 
@@ -51,12 +62,12 @@ def plot_line(city, plot_offline=True):
         font=dict(
             family=FONT_FAMILY,
             size=20,
-            color="Black"
+            color=color_mode['title'][dark_mode]
         ),
-        paper_bgcolor='#F5F5F5',
-        plot_bgcolor='#D6D6D6',
+        paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
+        plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
 
-        # TODO: At some point with too much time data, limit the x-axis range
+        # TODO: At some point with too much time data, limit the x-axis range, this will be additional function input
         # xaxis={'range': [0, len(df2.index)]},
         yaxis={'range': [0, 20]},
         spikedistance=1000,
@@ -65,22 +76,27 @@ def plot_line(city, plot_offline=True):
             font=dict(
                 size=16,
                 family=FONT_FAMILY,
-                color="white"
+                color=color_mode['hover'][dark_mode]
             )
         )
     )
 
     fig = go.Figure(data=traces, layout=layout)
-    fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True, spikecolor="black",
-                     spikesnap="cursor", spikemode="across", spikethickness=2)
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True, spikecolor="black",
+
+    fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True,
+                     spikecolor=color_mode['spikecolor'][dark_mode], spikesnap="cursor", spikemode="across",
                      spikethickness=2)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True,
+                     spikecolor=color_mode['spikecolor'][dark_mode], spikethickness=2)
+
     fig.update_traces(hovertemplate='Wait: %{y:.1f} hrs at %{x}<extra></extra>')
 
     if plot_offline:
         pyo.plot(fig, filename=html_file)
 
     return fig
+
+# -------------------------------------------------------------------------------------------------
 
 
 if __name__ == "__main__":
