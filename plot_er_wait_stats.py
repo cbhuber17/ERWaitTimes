@@ -89,7 +89,8 @@ def plot_line(city, plot_offline=True, dark_mode=True):
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True,
                      spikecolor=color_mode['spikecolor'][dark_mode], spikethickness=2)
 
-    fig.update_traces(hovertemplate='Wait: %{y:.1f} hrs at %{x}<extra></extra>')
+    # Trace label automatically displayed as <extra>
+    fig.update_traces(hovertemplate='Wait: %{y:.1f} hrs on %{x} at: ')
 
     if plot_offline:
         pyo.plot(fig, filename=html_file)
