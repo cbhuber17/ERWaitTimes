@@ -15,41 +15,80 @@ app = dash.Dash(__name__, assets_folder='assets')
 
 server = app.server
 
+# TODO: Live updating and adding to CSV
 df_yyc = pd.read_csv('Calgary_hospital_stats.csv')
 df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
 
 # Dash HTML layout
 app.layout = html.Div([
     dcc.Location(id='url'), dcc.Store(id='viewport-container', data={}, storage_type='session'),
-    html.Header([html.A([html.Img(id='ahs-logo', src='assets/ahs.jpg')], href='https://www.albertahealthservices.ca/'),
-                 html.H1("Alberta ER Wait Times")]),
-    html.H4(["Source: ", html.A([f"{URL}"], id="url-link", href=f"{URL}")], id="h4"),
+    html.Header(
+        [
+            html.A(
+                [
+                    html.Img(id='ahs-logo', src='assets/ahs.jpg')
+                ], href='https://www.albertahealthservices.ca/'
+            ),
+            html.H1("Alberta ER Wait Times")
+        ]
+    ),
+    html.H4(
+        ["Source: ",
+         html.A(
+             [f"{URL}"], id="url-link", href=f"{URL}")
+         ], id="h4"),
 
-    html.Div([daq.ToggleSwitch(id='dark-mode-switch', label=dict(label='View Page in Dark Mode:',
-                                                                 style={'font-size': '20px'}),
-                               value=True, size=50, color='orange', style={'margin-bottom': '20px'})]),
+    html.Div(
+        [
+            daq.ToggleSwitch(id='dark-mode-switch',
+                             label={'label': 'View Page in Dark Mode:', 'style': {'font-size': '20px'}},
+                             value=True,
+                             size=50,
+                             color='orange')
+        ]
+    ),
     html.Hr(),
     dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
     html.Hr(),
     dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
     html.Hr(),
     html.Footer(
-        [html.Div(['This page was created using python apps: Plotly and Dash - Content developed by Colin Huber'],
-                  style={'font-size': '30px'}),
-         html.Div(['Contact:'], style={'text-decoration': 'underline', 'color': 'skyblue', 'font-size': '30px',
-                                       'margin-bottom': '10px'}),
-         html.A([html.Img(src='assets/fb.png')], href='https://www.facebook.com/cbhuber/'),
-         html.A([html.Img(src='assets/li.png', style={'margin-left': '10px'})],
-                href='https://www.linkedin.com/in/cbhuber/')],
-        style={'text-align': 'center'},
-    ),
-    html.Div(['Ⓒ Colin Huber 2022, Distributed under the MIT License'], style={'text-align': 'center'})
+        [
+            html.Div(
+                ['This page was created using python apps: Plotly and Dash'],
+                id='footer-note'
+            ),
+            html.Div(
+                ['Contact:'],
+                id='footer-contact'
+            ),
+            html.A(
+                [
+                    html.Img(src='assets/fb.png',
+                             id='fb-img')
+                ],
+                href='https://www.facebook.com/cbhuber/'
+            ),
+            html.A(
+                [
+                    html.Img(src='assets/li.png',
+                             id='li-img')
+                ],
+                href='https://www.linkedin.com/in/cbhuber/'
+            ),
+            html.Div(
+                ['Ⓒ Colin Huber 2022, Distributed under the MIT License'],
+                id='copyright'
+            )
+        ]
+    )
 ], id='main')
 
 
 # ------------------------------------------------------------------------
 
-@app.callback([Output('url-link', 'style'), Output('h4', 'style')], [Input('dark-mode-switch', 'value'), Input('viewport-container', 'data')])
+@app.callback([Output('url-link', 'style'), Output('h4', 'style')],
+              [Input('dark-mode-switch', 'value'), Input('viewport-container', 'data')])
 def update_source_link(dark_mode, screen_size):
     """CALLBACK: Updates the color of the source link based on the dark mode selected.
     TRIGGER: Upon page loading and when selecting the toggle for dark mode
@@ -70,6 +109,7 @@ def update_source_link(dark_mode, screen_size):
         color = {'color': 'blue'}
 
     return color, size
+
 
 # ------------------------------------------------------------------------
 

@@ -12,6 +12,14 @@
     height: auto;
 }
 
+#dark-mode-switch {
+    margin-bottom: 20px;
+}
+
+#switch-id {
+    font-size: 20px;
+}
+
 h1 {
     text-align: center;
     margin-top: 0;
@@ -19,6 +27,27 @@ h1 {
 
 h4 {
     text-align: center;
+}
+
+footer {
+    text-align: center;
+}
+
+#footer-note {
+    font-size: 30px;
+}
+
+#footer-contact {
+
+    text-decoration: underline;
+    color: skyblue;
+    font-size: 30px;
+    margin-bottom: 10px;
+
+}
+
+#li-img {
+    margin-left: 10px;
 }
 
 @media only screen and (max-device-height: 420px) {
