@@ -66,9 +66,6 @@ def plot_line(city, plot_offline=True, dark_mode=True):
         ),
         paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
         plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
-
-        # TODO: At some point with too much time data, limit the x-axis range, this will be additional function input
-        # xaxis={'range': [0, len(df2.index)]},
         yaxis={'range': [0, 20]},
         spikedistance=1000,
         hoverdistance=100,
@@ -85,7 +82,18 @@ def plot_line(city, plot_offline=True, dark_mode=True):
 
     fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True,
                      spikecolor=color_mode['spikecolor'][dark_mode], spikesnap="cursor", spikemode="across",
-                     spikethickness=2)
+                     spikethickness=2,
+                     rangeselector=dict(
+                         buttons=list([
+                             dict(count=1, label="1d", step="day", stepmode="backward"),
+                             dict(count=7, label="1w", step="day", stepmode="backward"),
+                             dict(count=14, label="2w", step="day", stepmode="backward"),
+                             dict(count=1, label="1m", step="month", stepmode="backward"),
+                             dict(count=1, label="YTD", step="year", stepmode="todate"),
+                             dict(step="all")
+                         ])
+                     )
+                     )
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True,
                      spikecolor=color_mode['spikecolor'][dark_mode], spikethickness=2)
 
