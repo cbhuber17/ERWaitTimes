@@ -14,6 +14,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 POLLING_INTERVAL = 3600  # seconds
 DATE_TIME_FORMAT = "%a %b %d %Y - %H:%M:%S"
 
+# ER Wait times URL for alberta
+URL = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
+
 
 class ErWait:
     """Class to capture data of a specific city. It is intended to run as separate threads."""
@@ -31,22 +34,19 @@ class ErWait:
         self.options.add_argument('--disable-gpu')
         self.options.add_argument("--log-level=3")
 
-        # ER Wait times URL for alberta
-        self.url = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
-
         self.stats_file_name = f"{self.city}_hospital_stats.csv"
 
     # -------------------------------------------------------------------------------------------------
 
     def _run_driver(self, wait_secs):
-        """Runs the Chrome webdriver and returns the HTML of the page (doc) self.url in the constructor.
+        """Runs the Chrome webdriver and returns the HTML of the page (doc) of URL.
         :param: wait_secs (int) How many seconds to wait after the driver has launched.  3 secs seems good.
         :return: page HTML source (str)"""
 
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=self.options)
 
         # Get page and wait for JS to load
-        driver.get(self.url)
+        driver.get(URL)
         time.sleep(wait_secs)
 
         # Grab the HTML and stop driver
