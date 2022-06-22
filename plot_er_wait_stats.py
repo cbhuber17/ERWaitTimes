@@ -138,10 +138,10 @@ def create_hour_dict(hour, hour_dict):
 
 def my_24h_cosine(x, amplitude, phase, offset):
     """Typical Cosine function for a 24h period: amplitude * cos(x*(π/12) + phase) + offset
-    :param: x (int or float) x-coordinate
-    :param: amplitude (int or float) amplitude of wave
+    :param: x (int or float) x-coordinate in hours
+    :param: amplitude (int or float) amplitude of wave (hours)
     :param: phase (int or float) phase offset, must be in radians
-    :param: offset (int or float) vertical offset
+    :param: offset (int or float) vertical offset (hours)
     :return: amplitude * cos(x*(π/12) + phase) + offset"""
 
     # 24h day in radians (omega - angular rate)
@@ -240,7 +240,7 @@ def get_wait_data_hour_dict(df, hospital):
 
 # -------------------------------------------------------------------------------------------------
 
-def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
+def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=True):
     """Plots as violin data for each hour of the ER wait times.
     :param: city (str) City to be plotted
     :param: hospital (str) Hospital in city to be plotted
@@ -262,6 +262,7 @@ def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
     # Capture data
     df = pd.read_csv(city + "_hospital_stats.csv")
 
+    # Filter data by hospital
     df3 = filter_df(df, hospital)
 
     # Span of data for sub-title
@@ -354,15 +355,98 @@ def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
 
 # -------------------------------------------------------------------------------------------------
 
+def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
+
+    # TODO: Not all keys are used in this function
+    color_mode = {'title': ('black', 'white'),
+                  'hover': ('white', 'black'),
+                  'spikecolor': ('black', 'white'),
+                  'paper_bgcolor': ('white', 'black'),
+                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
+                  'an_bgcolor': ('#FFFFE0', 'white'),
+                  'an_text_color': ('black', 'navy')}
+
+    html_file = city + "_hospitals_violin.html"
+
+    # Capture data
+    df = pd.read_csv(city + "_hospital_stats.csv")
+
+    # TODO: Duplicate code from other violin function
+    # Convert all string to datetime objects
+    df.loc[:, 'time_stamp'] = pd.to_datetime(df['time_stamp'], format=DATE_TIME_FORMAT)
+
+    # Convert to hours for better readability
+    for wait_time in df.columns:
+        if wait_time == 'time_stamp':
+            continue
+
+        df[wait_time] = df[wait_time].astype("float64")
+        df[wait_time] /= 60.0
+
+    # Span of data for sub-title
+    min_date = min(df['time_stamp'].dt.date)
+    max_date = max(df['time_stamp'].dt.date)
+
+    layout = go.Layout(
+        title={'text': city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>',
+               'x': 0.5,
+               'y': 0.95,
+               'xanchor': 'center',
+               'yanchor': 'top'},
+        xaxis_title={'text': "Hospital"},
+        yaxis_title={'text': "Wait Time in Hours"},
+        legend_title={'text': "Time (Hour)"},
+        showlegend=False,
+        font=dict(
+            family=FONT_FAMILY,
+            size=20,
+            color=color_mode['title'][dark_mode]
+        ),
+        paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
+        plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
+        yaxis={'range': [0, 15]},
+        hovermode='closest',
+        hoverdistance=50,
+        hoverlabel=dict(
+            font=dict(
+                size=16,
+                family=FONT_FAMILY,
+                color=color_mode['hover'][dark_mode]
+            )
+        )
+    )
+
+    fig = go.Figure(layout=layout)
+
+    for hospital in df:
+        if hospital == 'time_stamp':
+            continue
+
+        fig.add_trace(go.Violin(x0=hospital, y=df[hospital],
+                                box_visible=True,
+                                meanline_visible=True,
+                                name=hospital,
+                                opacity=0.9))
+
+    if plot_offline:
+        pyo.plot(fig, filename=html_file, config={'responsive': True})
+
+    return fig
+
+
+# -------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    plot_line("Calgary", True)
-    plot_line("Edmonton", False)
+    # plot_line("Calgary")
+    # plot_line("Edmonton")
 
-    plot_violin("Calgary", "South Health Campus")
-    # plot_violin("Calgary", "Alberta Children's Hospital")
-    # plot_violin("Calgary", "Foothills Medical Centre")
-    # plot_violin("Calgary", "Peter Lougheed Centre")
-    # plot_violin("Calgary", "Rockyview General Hospital")
-    # plot_violin("Calgary", "Sheldon M. Chumir Centre")
-    # plot_violin("Calgary", "South Calgary Health Centre")
+    # plot_hospital_hourly_violin("Calgary", "South Health Campus")
+    # plot_hospital_hourly_violin("Calgary", "Alberta Children's Hospital")
+    # plot_hospital_hourly_violin("Calgary", "Foothills Medical Centre")
+    # plot_hospital_hourly_violin("Calgary", "Peter Lougheed Centre")
+    # plot_hospital_hourly_violin("Calgary", "Rockyview General Hospital")
+    # plot_hospital_hourly_violin("Calgary", "Sheldon M. Chumir Centre")
+    # plot_hospital_hourly_violin("Calgary", "South Calgary Health Centre")
+
+    plot_all_hospitals_violin("Calgary")
+    plot_all_hospitals_violin("Edmonton")
