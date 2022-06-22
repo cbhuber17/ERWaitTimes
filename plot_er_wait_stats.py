@@ -136,14 +136,18 @@ def create_hour_dict(hour, hour_dict):
 
 # -------------------------------------------------------------------------------------------------
 
-def my_cosine(x, freq, amplitude, phase, offset):
-    """Typical Cosine function: amplitude * cos(x*freq + phase) + offset
+def my_24h_cosine(x, amplitude, phase, offset):
+    """Typical Cosine function for a 24h period: amplitude * cos(x*(π/12) + phase) + offset
     :param: x (int or float) x-coordinate
-    :param: freq (int or float) frequency (1 for 1 day)
-    :param: phase (int or float) phase offset
+    :param: amplitude (int or float) amplitude of wave
+    :param: phase (int or float) phase offset, must be in radians
     :param: offset (int or float) vertical offset
-    :return: amplitude * cos(x*freq + phase) + offset"""
-    return np.cos(x * freq + phase) * amplitude + offset
+    :return: amplitude * cos(x*(π/12) + phase) + offset"""
+
+    # 24h day in radians (omega - angular rate)
+    radians_per_hour = float(np.pi / 12)
+
+    return np.cos(x * radians_per_hour + phase) * amplitude + offset
 
 
 # -------------------------------------------------------------------------------------------------
@@ -164,21 +168,17 @@ def get_cos_fit(df):
     x_values = np.array(x_values)
     y_values = np.array(y_values)
 
-    guess_freq = 0.1  # TODO: Iterate until this is approx 24 hrs/day (2pi rad)
     guess_amplitude = 3 * np.std(y_values) / (2 ** 0.5)
     guess_phase = 0
     guess_offset = np.mean(y_values)
 
-    print(guess_amplitude)
-    print(guess_offset)
+    p0 = [guess_amplitude, guess_phase, guess_offset]
 
-    p0 = [guess_freq, guess_amplitude, guess_phase, guess_offset]
-
-    curve_param, curve_covariance = curve_fit(my_cosine, x_values, y_values, p0=p0)
+    curve_param, curve_covariance = curve_fit(my_24h_cosine, x_values, y_values, p0=p0)
 
     print(curve_param)
 
-    cosine_curve_fit = my_cosine(x_values, *curve_param)
+    cosine_curve_fit = my_24h_cosine(x_values, *curve_param)
 
     return curve_param, cosine_curve_fit
 
@@ -317,10 +317,9 @@ def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
 
     # LaTeX/MathJax format to show the model equation and stat values
     model_equation = r"$\normalsize{a\cos(\omega t + \phi) + k}$"
-    model_results = r"$a={:.1f} hrs\\\omega={:.1f} hrs/day\\\phi={:.1f} hrs\\k={:.1f} hrs$".format(curve_param[1],
-                                                                                                   curve_param[0] * 2 * np.pi * HOURS_IN_DAY,
-                                                                                                   curve_param[2] * 2 * np.pi,
-                                                                                                   curve_param[3])
+    model_results = r"$a={:.1f} hrs\\\omega=24hrs/day\\\phi={:.1f} hrs\\k={:.1f} hrs$".format(curve_param[0],
+                                                                                              curve_param[1] * 2*np.pi,
+                                                                                              curve_param[2])
     equation_to_show = r"$\displaylines{" + model_equation[1:-1] + r"\\" + model_results[1:-1] + r"}$"
 
     # Arrow annotation properties
@@ -333,7 +332,7 @@ def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
 
     # Annotation variables
     x_annotation_point = 13.5
-    y_annotation_point = my_cosine(x_annotation_point, *curve_param)
+    y_annotation_point = my_24h_cosine(x_annotation_point, *curve_param)
 
     # Border of annotation properties
     bordercolor = "red"
