@@ -136,10 +136,22 @@ def create_hour_dict(hour, hour_dict):
 
 # -------------------------------------------------------------------------------------------------
 
-def get_sine_fit(df):
-    """Uses least squares to get a best-fit curve sine model.
+def my_cosine(x, freq, amplitude, phase, offset):
+    """Typical Cosine function: amplitude * cos(x*freq + phase) + offset
+    :param: x (int or float) x-coordinate
+    :param: freq (int or float) frequency (1 for 1 day)
+    :param: phase (int or float) phase offset
+    :param: offset (int or float) vertical offset
+    :return: amplitude * cos(x*freq + phase) + offset"""
+    return np.cos(x * freq + phase) * amplitude + offset
+
+
+# -------------------------------------------------------------------------------------------------
+
+def get_cos_fit(df):
+    """Uses least squares to get a best-fit curve cosine model.
     :param: df (pd.DataFrame) Data frame containing the 24 hr data
-    :return: (list) y values representing the sine curve."""
+    :return: (list) and (list) Cosine curve params and y values representing the cosine curve."""
 
     # Get sinusoid best-fit as the median/mean avg of each hour
     x_values = []
@@ -152,51 +164,35 @@ def get_sine_fit(df):
     x_values = np.array(x_values)
     y_values = np.array(y_values)
 
-    guess_freq = 0
+    guess_freq = 0.1  # TODO: Iterate until this is approx 24 hrs/day (2pi rad)
     guess_amplitude = 3 * np.std(y_values) / (2 ** 0.5)
     guess_phase = 0
     guess_offset = np.mean(y_values)
 
+    print(guess_amplitude)
+    print(guess_offset)
+
     p0 = [guess_freq, guess_amplitude, guess_phase, guess_offset]
 
-    def my_sine(x, freq, amplitude, phase, offset):
-        """Typical Sine function: amplitude * Sin(x*freq + phase) + offset
-        :param: x (int or float) x-coorindate
-        :param: freq (int or float) frequency (1 for 1 day)
-        :param: phase (int or float) phase offset
-        :param: offset (int or float) vertical offset
-        :return: amplitude * Sin(x*freq + phase) + offset"""
-        return np.sin(x * freq + phase) * amplitude + offset
+    curve_param, curve_covariance = curve_fit(my_cosine, x_values, y_values, p0=p0)
 
-    curve_param, curve_covariance = curve_fit(my_sine, x_values, y_values, p0=p0)
+    print(curve_param)
 
-    sine_curve_fit = my_sine(x_values, *curve_param)
+    cosine_curve_fit = my_cosine(x_values, *curve_param)
 
-    return sine_curve_fit
+    return curve_param, cosine_curve_fit
 
 
 # -------------------------------------------------------------------------------------------------
 
-def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
-    """Plots as violin data for each hour of the ER wait times.
-    :param: city (str) City to be plotted
-    :param: hospital (str) Hospital in city to be plotted
-    :param: plot_offline (bool) If an offline plot is to be generated (default: True)
-    :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
-    :return: (go.Figure) object"""
-
-    color_mode = {'title': ('black', 'white'),
-                  'hover': ('white', 'black'),
-                  'spikecolor': ('black', 'white'),
-                  'paper_bgcolor': ('white', 'black'),
-                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
-                  'range_bgcolor': ('lawngreen', 'navy'),
-                  'range_border_color': ('black', 'orange')}
-
-    html_file = city + '_' + hospital + "_violin.html"
-
-    # Capture data
-    df = pd.read_csv(city + "_hospital_stats.csv")
+def filter_df(df, hospital):
+    """Does initial filter of data frame:
+    - Drops any columns/hospitals that have NaN data
+    - Converts all time_stamp column elements to datetime objects
+    - Converts the wait time from minutes to hours
+    :param: df (pd.DataFrame) The dataframe from a csv file
+    :param: hospital (str) The hospital to filter data
+    :return: (pd.DataFrame) filtered df."""
 
     # Remove any N/A for now, out of town hospitals don't report their data
     df2 = df.copy()
@@ -214,30 +210,71 @@ def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
         df2[wait_time] /= 60.0
 
     # Filter by specific hospital
-    df3 = df2[['time_stamp', hospital]].copy()
+    return df2[['time_stamp', hospital]].copy()
 
-    # Span of data for sub-title
-    min_date = min(df3['time_stamp'].dt.date)
-    max_date = max(df3['time_stamp'].dt.date)
+
+# -------------------------------------------------------------------------------------------------
+
+def get_wait_data_hour_dict(df, hospital):
+    """Provides a new data frame to hold wait times at every hour (cols) for every day (rows).
+    :param: df (pd.DataFrame) Filtered dataframe containing time_stamp and hospital columns
+    :param: hospital (str) The hospital to filter data
+    :return: (pd.DataFrame) and (dict) of a hours x wait times df and hour_dictionary (e.g hour_dict[0] = '12 AM')
+    """
 
     data = {}
     hour_dict = {}
 
     # Create new df to hold wait times at every hour (cols) for every day (rows)
     for hour in range(0, HOURS_IN_DAY):
-        hour_filter = df3.time_stamp.dt.hour == hour
-        data[hour] = df3[hour_filter][hospital].tolist()
+        hour_filter = df.time_stamp.dt.hour == hour
+        data[hour] = df[hour_filter][hospital].tolist()
         create_hour_dict(hour, hour_dict)
 
     # Not all hours will have equal amount of data, create by day (cols) for every hour (rows) then transpose
-    df4 = pd.DataFrame.from_dict(data, orient='index')
-    df4 = df4.transpose()
+    df2 = pd.DataFrame.from_dict(data, orient='index')
+    df2 = df2.transpose()
 
-    sine_curve_fit = get_sine_fit(df4)
+    return df2, hour_dict
 
-    # Sin best-fit curve
-    plot_sine = go.Scatter(x=list(hour_dict.values()), y=sine_curve_fit, name="Average",
-                           line=dict(width=4, color='red'))
+
+# -------------------------------------------------------------------------------------------------
+
+def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
+    """Plots as violin data for each hour of the ER wait times.
+    :param: city (str) City to be plotted
+    :param: hospital (str) Hospital in city to be plotted
+    :param: plot_offline (bool) If an offline plot is to be generated (default: True)
+    :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
+    :return: (go.Figure) object"""
+
+    # TODO: Not all keys are used in this function
+    color_mode = {'title': ('black', 'white'),
+                  'hover': ('white', 'black'),
+                  'spikecolor': ('black', 'white'),
+                  'paper_bgcolor': ('white', 'black'),
+                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
+                  'an_bgcolor': ('#FFFFE0', 'white'),
+                  'an_text_color': ('black', 'navy')}
+
+    html_file = city + '_' + hospital + "_violin.html"
+
+    # Capture data
+    df = pd.read_csv(city + "_hospital_stats.csv")
+
+    df3 = filter_df(df, hospital)
+
+    # Span of data for sub-title
+    min_date = min(df3['time_stamp'].dt.date)
+    max_date = max(df3['time_stamp'].dt.date)
+
+    df4, hour_dict = get_wait_data_hour_dict(df3, hospital)
+
+    curve_param, cosine_curve_fit = get_cos_fit(df4)
+
+    # Cosine best-fit curve
+    plot_cosine = go.Scatter(x=list(hour_dict.values()), y=cosine_curve_fit, name="Average",
+                             line=dict(width=4, color='red'))
 
     layout = go.Layout(
         title={'text': hospital + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>',
@@ -276,10 +313,42 @@ def plot_violin(city, hospital, plot_offline=True, dark_mode=True):
                                 name=hour_dict[hour],
                                 opacity=0.9))
 
-    fig.add_trace(plot_sine)
+    fig.add_trace(plot_cosine)
+
+    # LaTeX/MathJax format to show the model equation and stat values
+    model_equation = r"$\normalsize{a\cos(\omega t + \phi) + k}$"
+    model_results = r"$a={:.1f} hrs\\\omega={:.1f} hrs/day\\\phi={:.1f} hrs\\k={:.1f} hrs$".format(curve_param[1],
+                                                                                                   curve_param[0] * 2 * np.pi * HOURS_IN_DAY,
+                                                                                                   curve_param[2] * 2 * np.pi,
+                                                                                                   curve_param[3])
+    equation_to_show = r"$\displaylines{" + model_equation[1:-1] + r"\\" + model_results[1:-1] + r"}$"
+
+    # Arrow annotation properties
+    arrowhead = 2
+    arrowsize = 2
+    arrowwidth = 2
+    arrowcolor = "red"
+    x_arrow_vector = 50
+    y_arrow_vector = -500  # TODO: This needs to be responsive
+
+    # Annotation variables
+    x_annotation_point = 13.5
+    y_annotation_point = my_cosine(x_annotation_point, *curve_param)
+
+    # Border of annotation properties
+    bordercolor = "red"
+    borderwidth = 3
+    borderpad = 35
+    bgcolor = color_mode['an_bgcolor'][dark_mode]
+
+    # Arrow annotation of the equation of the curve
+    fig.add_annotation(x=x_annotation_point, y=y_annotation_point, text=equation_to_show, showarrow=True,
+                       arrowhead=arrowhead, arrowsize=arrowsize, arrowwidth=arrowwidth, arrowcolor=arrowcolor,
+                       bordercolor=bordercolor, borderpad=borderpad, borderwidth=borderwidth, bgcolor=bgcolor,
+                       ax=x_arrow_vector, ay=y_arrow_vector, font=dict(color=color_mode['an_text_color'][dark_mode]))
 
     if plot_offline:
-        pyo.plot(fig, filename=html_file)
+        pyo.plot(fig, filename=html_file, include_mathjax='cdn', config={'responsive': True})
 
     return fig
 
