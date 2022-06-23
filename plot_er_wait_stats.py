@@ -176,8 +176,6 @@ def get_cos_fit(df):
 
     curve_param, curve_covariance = curve_fit(my_24h_cosine, x_values, y_values, p0=p0)
 
-    print(curve_param)
-
     cosine_curve_fit = my_24h_cosine(x_values, *curve_param)
 
     return curve_param, cosine_curve_fit
@@ -185,13 +183,12 @@ def get_cos_fit(df):
 
 # -------------------------------------------------------------------------------------------------
 
-def filter_df(df, hospital):
+def filter_df(df):
     """Does initial filter of data frame:
     - Drops any columns/hospitals that have NaN data
     - Converts all time_stamp column elements to datetime objects
     - Converts the wait time from minutes to hours
     :param: df (pd.DataFrame) The dataframe from a csv file
-    :param: hospital (str) The hospital to filter data
     :return: (pd.DataFrame) filtered df."""
 
     # Remove any N/A for now, out of town hospitals don't report their data
@@ -209,8 +206,7 @@ def filter_df(df, hospital):
         df2[wait_time] = df2[wait_time].astype("float64")
         df2[wait_time] /= 60.0
 
-    # Filter by specific hospital
-    return df2[['time_stamp', hospital]].copy()
+    return df2
 
 
 # -------------------------------------------------------------------------------------------------
@@ -240,6 +236,47 @@ def get_wait_data_hour_dict(df, hospital):
 
 # -------------------------------------------------------------------------------------------------
 
+def get_violin_layout(title_text, x_axis_label, color_mode, dark_mode):
+    """Gets the layout that is common among violin plots.
+    :param: title_text (str) The title of the plot
+    :param: x_axis_label (str) The label of the x-axis
+    :param: color_mode (dict) Colors containing a key and tuple dictionary for (light/False, dark/True)
+    :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
+    retyrb (go.Layout)"""
+
+    layout = go.Layout(
+        title={'text': title_text,
+               'x': 0.5,
+               'y': 0.95,
+               'xanchor': 'center',
+               'yanchor': 'top'},
+        xaxis_title={'text': x_axis_label},
+        yaxis_title={'text': "Wait Time in Hours"},
+        legend_title={'text': "Time (Hour)"},
+        showlegend=False,
+        font=dict(
+            family=FONT_FAMILY,
+            size=20,
+            color=color_mode['title'][dark_mode]
+        ),
+        paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
+        plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
+        yaxis={'range': [0, 15]},
+        hoverdistance=50,
+        hoverlabel=dict(
+            font=dict(
+                size=16,
+                family=FONT_FAMILY,
+                color=color_mode['hover'][dark_mode]
+            )
+        )
+    )
+
+    return layout
+
+# -------------------------------------------------------------------------------------------------
+
+
 def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=True):
     """Plots as violin data for each hour of the ER wait times.
     :param: city (str) City to be plotted
@@ -263,7 +300,9 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
     df = pd.read_csv(city + "_hospital_stats.csv")
 
     # Filter data by hospital
-    df3 = filter_df(df, hospital)
+    df3 = filter_df(df)
+
+    df3 = df3[['time_stamp', hospital]].copy()
 
     # Span of data for sub-title
     min_date = min(df3['time_stamp'].dt.date)
@@ -277,33 +316,8 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
     plot_cosine = go.Scatter(x=list(hour_dict.values()), y=cosine_curve_fit, name="Average",
                              line=dict(width=4, color='red'))
 
-    layout = go.Layout(
-        title={'text': hospital + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>',
-               'x': 0.5,
-               'y': 0.95,
-               'xanchor': 'center',
-               'yanchor': 'top'},
-        xaxis_title={'text': "Time"},
-        yaxis_title={'text': "Wait Time in Hours"},
-        legend_title={'text': "Time (Hour)"},
-        showlegend=False,
-        font=dict(
-            family=FONT_FAMILY,
-            size=20,
-            color=color_mode['title'][dark_mode]
-        ),
-        paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
-        plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
-        yaxis={'range': [0, 15]},
-        hoverdistance=50,
-        hoverlabel=dict(
-            font=dict(
-                size=16,
-                family=FONT_FAMILY,
-                color=color_mode['hover'][dark_mode]
-            )
-        )
-    )
+    layout = get_violin_layout(hospital + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Time',
+                               color_mode, dark_mode)
 
     fig = go.Figure(layout=layout)
 
@@ -319,7 +333,8 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
     # LaTeX/MathJax format to show the model equation and stat values
     model_equation = r"$\normalsize{a\cos(\omega t + \phi) + k}$"
     model_results = r"$a={:.1f} hrs\\\omega=24hrs/day\\\phi={:.1f} hrs\\k={:.1f} hrs$".format(curve_param[0],
-                                                                                              curve_param[1] * 2*np.pi,
+                                                                                              curve_param[
+                                                                                                  1] * 2 * np.pi,
                                                                                               curve_param[2])
     equation_to_show = r"$\displaylines{" + model_equation[1:-1] + r"\\" + model_results[1:-1] + r"}$"
 
@@ -371,50 +386,15 @@ def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
     # Capture data
     df = pd.read_csv(city + "_hospital_stats.csv")
 
-    # TODO: Duplicate code from other violin function
-    # Convert all string to datetime objects
-    df.loc[:, 'time_stamp'] = pd.to_datetime(df['time_stamp'], format=DATE_TIME_FORMAT)
-
-    # Convert to hours for better readability
-    for wait_time in df.columns:
-        if wait_time == 'time_stamp':
-            continue
-
-        df[wait_time] = df[wait_time].astype("float64")
-        df[wait_time] /= 60.0
+    # Filter
+    df = filter_df(df)
 
     # Span of data for sub-title
     min_date = min(df['time_stamp'].dt.date)
     max_date = max(df['time_stamp'].dt.date)
 
-    layout = go.Layout(
-        title={'text': city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>',
-               'x': 0.5,
-               'y': 0.95,
-               'xanchor': 'center',
-               'yanchor': 'top'},
-        xaxis_title={'text': "Hospital"},
-        yaxis_title={'text': "Wait Time in Hours"},
-        legend_title={'text': "Time (Hour)"},
-        showlegend=False,
-        font=dict(
-            family=FONT_FAMILY,
-            size=20,
-            color=color_mode['title'][dark_mode]
-        ),
-        paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
-        plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
-        yaxis={'range': [0, 15]},
-        hovermode='closest',
-        hoverdistance=50,
-        hoverlabel=dict(
-            font=dict(
-                size=16,
-                family=FONT_FAMILY,
-                color=color_mode['hover'][dark_mode]
-            )
-        )
-    )
+    layout = get_violin_layout(city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Hospital',
+                               color_mode, dark_mode)
 
     fig = go.Figure(layout=layout)
 
@@ -440,7 +420,7 @@ if __name__ == "__main__":
     # plot_line("Calgary")
     # plot_line("Edmonton")
 
-    # plot_hospital_hourly_violin("Calgary", "South Health Campus")
+    plot_hospital_hourly_violin("Calgary", "South Health Campus")
     # plot_hospital_hourly_violin("Calgary", "Alberta Children's Hospital")
     # plot_hospital_hourly_violin("Calgary", "Foothills Medical Centre")
     # plot_hospital_hourly_violin("Calgary", "Peter Lougheed Centre")
