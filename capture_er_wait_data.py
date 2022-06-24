@@ -154,8 +154,21 @@ class ErWait:
 
         # Run forever
         while True:
-            # Grab the HTML
-            page = self._run_driver(3)
+
+            # Intentional delay to handle both city web-drivers accessing at the same time
+            if self.city.lower() == "calgary":
+                time.sleep(1)
+
+            try:
+                # Grab the HTML
+                page = self._run_driver(3)
+
+            # If an exception happens, just skip it for this iteration and continue
+            except Exception as e:
+                print(e)
+                print(f"Exception happened in {self.city}.  Waiting {POLLING_INTERVAL} to try again.")
+                time.sleep(POLLING_INTERVAL)
+                continue
 
             # Put it in the parser
             doc = BeautifulSoup(page, "html.parser")
