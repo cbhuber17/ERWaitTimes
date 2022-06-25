@@ -2,6 +2,7 @@
 
 import plotly.offline as pyo
 import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
@@ -274,6 +275,7 @@ def get_violin_layout(title_text, x_axis_label, color_mode, dark_mode):
 
     return layout
 
+
 # -------------------------------------------------------------------------------------------------
 
 
@@ -299,9 +301,10 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
     # Capture data
     df = pd.read_csv(city + "_hospital_stats.csv")
 
-    # Filter data by hospital
+    # Filter data
     df3 = filter_df(df)
 
+    # Filter data by hospital
     df3 = df3[['time_stamp', hospital]].copy()
 
     # Span of data for sub-title
@@ -310,11 +313,15 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
 
     df4, hour_dict = get_wait_data_hour_dict(df3, hospital)
 
-    curve_param, cosine_curve_fit = get_cos_fit(df4)
+    # Don't plot best fit curve if midnight column is entirely NaN
+    plot_bestfit = not df4[0].isnull().any()
 
-    # Cosine best-fit curve
-    plot_cosine = go.Scatter(x=list(hour_dict.values()), y=cosine_curve_fit, name="Average",
-                             line=dict(width=4, color='red'))
+    if plot_bestfit:
+        curve_param, cosine_curve_fit = get_cos_fit(df4)
+
+        # Cosine best-fit curve
+        plot_cosine = go.Scatter(x=list(hour_dict.values()), y=cosine_curve_fit, name="Average",
+                                 line=dict(width=4, color='red'))
 
     layout = get_violin_layout(hospital + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Time',
                                color_mode, dark_mode)
@@ -328,39 +335,40 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
                                 name=hour_dict[hour],
                                 opacity=0.9))
 
-    fig.add_trace(plot_cosine)
+    if plot_bestfit:
+        fig.add_trace(plot_cosine)
 
-    # LaTeX/MathJax format to show the model equation and stat values
-    model_equation = r"$\normalsize{a\cos(\omega t + \phi) + k}$"
-    model_results = r"$a={:.1f} hrs\\\omega=24hrs/day\\\phi={:.1f} hrs\\k={:.1f} hrs$".format(curve_param[0],
-                                                                                              curve_param[
-                                                                                                  1] * 2 * np.pi,
-                                                                                              curve_param[2])
-    equation_to_show = r"$\displaylines{" + model_equation[1:-1] + r"\\" + model_results[1:-1] + r"}$"
+        # LaTeX/MathJax format to show the model equation and stat values
+        model_equation = r"$\normalsize{a\cos(\omega t + \phi) + k}$"
+        model_results = r"$a={:.1f} hrs\\\omega=24hrs/day\\\phi={:.1f} hrs\\k={:.1f} hrs$".format(curve_param[0],
+                                                                                                  curve_param[
+                                                                                                      1] * 2 * np.pi,
+                                                                                                  curve_param[2])
+        equation_to_show = r"$\displaylines{" + model_equation[1:-1] + r"\\" + model_results[1:-1] + r"}$"
 
-    # Arrow annotation properties
-    arrowhead = 2
-    arrowsize = 2
-    arrowwidth = 2
-    arrowcolor = "red"
-    x_arrow_vector = 50
-    y_arrow_vector = -500  # TODO: This needs to be responsive
+        # Arrow annotation properties
+        arrowhead = 2
+        arrowsize = 2
+        arrowwidth = 2
+        arrowcolor = "red"
+        x_arrow_vector = 50
+        y_arrow_vector = -500  # TODO: This needs to be responsive
 
-    # Annotation variables
-    x_annotation_point = 13.5
-    y_annotation_point = my_24h_cosine(x_annotation_point, *curve_param)
+        # Annotation variables
+        x_annotation_point = 13.5
+        y_annotation_point = my_24h_cosine(x_annotation_point, *curve_param)
 
-    # Border of annotation properties
-    bordercolor = "red"
-    borderwidth = 3
-    borderpad = 35
-    bgcolor = color_mode['an_bgcolor'][dark_mode]
+        # Border of annotation properties
+        bordercolor = "red"
+        borderwidth = 3
+        borderpad = 35
+        bgcolor = color_mode['an_bgcolor'][dark_mode]
 
-    # Arrow annotation of the equation of the curve
-    fig.add_annotation(x=x_annotation_point, y=y_annotation_point, text=equation_to_show, showarrow=True,
-                       arrowhead=arrowhead, arrowsize=arrowsize, arrowwidth=arrowwidth, arrowcolor=arrowcolor,
-                       bordercolor=bordercolor, borderpad=borderpad, borderwidth=borderwidth, bgcolor=bgcolor,
-                       ax=x_arrow_vector, ay=y_arrow_vector, font=dict(color=color_mode['an_text_color'][dark_mode]))
+        # Arrow annotation of the equation of the curve
+        fig.add_annotation(x=x_annotation_point, y=y_annotation_point, text=equation_to_show, showarrow=True,
+                           arrowhead=arrowhead, arrowsize=arrowsize, arrowwidth=arrowwidth, arrowcolor=arrowcolor,
+                           bordercolor=bordercolor, borderpad=borderpad, borderwidth=borderwidth, bgcolor=bgcolor,
+                           ax=x_arrow_vector, ay=y_arrow_vector, font=dict(color=color_mode['an_text_color'][dark_mode]))
 
     if plot_offline:
         pyo.plot(fig, filename=html_file, include_mathjax='cdn', config={'responsive': True})
@@ -371,8 +379,10 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
 # -------------------------------------------------------------------------------------------------
 
 def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
+    """TBD"""
 
     # TODO: Not all keys are used in this function
+    # TODO: Also duplicate
     color_mode = {'title': ('black', 'white'),
                   'hover': ('white', 'black'),
                   'spikecolor': ('black', 'white'),
@@ -416,17 +426,115 @@ def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
 
 # -------------------------------------------------------------------------------------------------
 
+def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
+    """TBD"""
+
+    html_file = city + '_subplots.html'
+
+    color_mode = {'title': ('black', 'white'),
+                  'hover': ('white', 'black'),
+                  'spikecolor': ('black', 'white'),
+                  'paper_bgcolor': ('white', 'black'),
+                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
+                  'an_bgcolor': ('#FFFFE0', 'white'),
+                  'an_text_color': ('black', 'navy')}
+
+    # TODO: There is an algorithm for generating this
+    subplot_dimensions = {0: (0, 0),
+                          1: (1, 0),
+                          2: (2, 0),
+                          3: (2, 1),
+                          4: (2, 2),
+                          5: (3, 2),
+                          6: (3, 2),
+                          7: (4, 2),
+                          8: (4, 2),
+                          9: (5, 2),
+                          10: (5, 2),
+                          11: (6, 2),
+                          12: (6, 2)}
+
+    # This works for sizes 7-12, max cols 2
+    subplot_location = {0: (0, 0),
+                        1: (1, 1),
+                        2: (1, 2),
+                        3: (2, 1),
+                        4: (2, 2),
+                        5: (3, 1),
+                        6: (3, 2),
+                        7: (4, 1),
+                        8: (4, 2),
+                        9: (5, 1),
+                        10: (5, 2),
+                        11: (6, 1),
+                        12: (6, 2)}
+
+    df = pd.read_csv(city + "_hospital_stats.csv")
+
+    # Filter data
+    df2 = filter_df(df)
+
+    hospitals = list(df2.columns)
+    hospitals.remove('time_stamp')
+
+    # Span of data for sub-title
+    min_date = min(df2['time_stamp'].dt.date)
+    max_date = max(df2['time_stamp'].dt.date)
+
+    num_hospitals = len(df2.columns) - 1
+
+    rows, cols = subplot_dimensions[num_hospitals]
+
+    fig = make_subplots(rows=rows, cols=cols, shared_xaxes=True, subplot_titles=hospitals, vertical_spacing=0.03)
+
+    figures_dict = {}
+
+    counter = 0
+
+    for hospital in df2:
+
+        if hospital == 'time_stamp':
+            continue
+
+        counter += 1
+
+        figures_dict[hospital] = plot_hospital_hourly_violin(city, hospital, False, True)
+
+        row, col = subplot_location[counter]
+
+        for trace in figures_dict[hospital].data:
+            fig.add_trace(trace, row=row, col=col)
+
+    # layout = get_violin_layout(city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Hospital',
+    #                            color_mode, dark_mode)
+
+    fig.update_layout(title_text=f"{city} Hospitals ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>",
+                      showlegend=False, height=2000, xaxis6_showticklabels=True, xaxis7_showticklabels=True)
+
+    # fig.update_xaxes(scaleanchor='x')
+    print(fig.layout)
+
+    if plot_offline:
+        pyo.plot(fig, filename=html_file, config={'responsive': True})
+
+    return fig
+
+
+# -------------------------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     # plot_line("Calgary")
     # plot_line("Edmonton")
 
-    plot_hospital_hourly_violin("Calgary", "South Health Campus")
+    # plot_hospital_hourly_violin("Calgary", "South Health Campus")
     # plot_hospital_hourly_violin("Calgary", "Alberta Children's Hospital")
     # plot_hospital_hourly_violin("Calgary", "Foothills Medical Centre")
     # plot_hospital_hourly_violin("Calgary", "Peter Lougheed Centre")
     # plot_hospital_hourly_violin("Calgary", "Rockyview General Hospital")
     # plot_hospital_hourly_violin("Calgary", "Sheldon M. Chumir Centre")
     # plot_hospital_hourly_violin("Calgary", "South Calgary Health Centre")
+    #
+    # plot_all_hospitals_violin("Calgary")
+    # plot_all_hospitals_violin("Edmonton")
 
-    plot_all_hospitals_violin("Calgary")
-    plot_all_hospitals_violin("Edmonton")
+    plot_subplots_hour_violin("Calgary")
