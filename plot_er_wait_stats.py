@@ -11,6 +11,18 @@ from capture_er_wait_data import DATE_TIME_FORMAT
 FONT_FAMILY = "Helvetica"
 HOURS_IN_DAY = 24
 HALF_DAY_HOURS = 12
+Y_AXIS_RANGE = [0, 20]  # Hours
+
+# Dark/light mode colors
+COLOR_MODE = {'title': ('black', 'white'),
+              'hover': ('white', 'black'),
+              'spikecolor': ('black', 'white'),
+              'paper_bgcolor': ('white', 'black'),
+              'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
+              'range_bgcolor': ('lawngreen', 'navy'),
+              'range_border_color': ('black', 'orange'),
+              'an_bgcolor': ('#FFFFE0', 'white'),
+              'an_text_color': ('black', 'navy')}
 
 
 # -------------------------------------------------------------------------------------------------
@@ -21,14 +33,6 @@ def plot_line(city, plot_offline=True, dark_mode=True):
     :param: plot_offline (bool) If an offline plot is to be generated (default: True)
     :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
     :return: (go.Figure) object"""
-
-    color_mode = {'title': ('black', 'white'),
-                  'hover': ('white', 'black'),
-                  'spikecolor': ('black', 'white'),
-                  'paper_bgcolor': ('white', 'black'),
-                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
-                  'range_bgcolor': ('lawngreen', 'navy'),
-                  'range_border_color': ('black', 'orange')}
 
     html_file = city + "_er_wait_times.html"
 
@@ -70,18 +74,18 @@ def plot_line(city, plot_offline=True, dark_mode=True):
         font=dict(
             family=FONT_FAMILY,
             size=20,
-            color=color_mode['title'][dark_mode]
+            color=COLOR_MODE['title'][dark_mode]
         ),
-        paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
-        plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
-        yaxis={'range': [0, 20]},
+        paper_bgcolor=COLOR_MODE['paper_bgcolor'][dark_mode],
+        plot_bgcolor=COLOR_MODE['plot_bgcolor'][dark_mode],
+        yaxis={'range': Y_AXIS_RANGE},
         spikedistance=1000,
         hoverdistance=100,
         hoverlabel=dict(
             font=dict(
                 size=16,
                 family=FONT_FAMILY,
-                color=color_mode['hover'][dark_mode]
+                color=COLOR_MODE['hover'][dark_mode]
             )
         )
     )
@@ -89,11 +93,11 @@ def plot_line(city, plot_offline=True, dark_mode=True):
     fig = go.Figure(data=traces, layout=layout)
 
     fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True,
-                     spikecolor=color_mode['spikecolor'][dark_mode], spikesnap="cursor", spikemode="across",
+                     spikecolor=COLOR_MODE['spikecolor'][dark_mode], spikesnap="cursor", spikemode="across",
                      spikethickness=2,
                      rangeselector=dict(
-                         bgcolor=color_mode['range_bgcolor'][dark_mode],
-                         bordercolor=color_mode['range_border_color'][dark_mode],
+                         bgcolor=COLOR_MODE['range_bgcolor'][dark_mode],
+                         bordercolor=COLOR_MODE['range_border_color'][dark_mode],
                          borderwidth=1,
                          buttons=list([
                              dict(count=1, label="1d", step="day", stepmode="backward"),
@@ -106,7 +110,7 @@ def plot_line(city, plot_offline=True, dark_mode=True):
                      )
                      )
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='White', showspikes=True,
-                     spikecolor=color_mode['spikecolor'][dark_mode], spikethickness=2)
+                     spikecolor=COLOR_MODE['spikecolor'][dark_mode], spikethickness=2)
 
     # Trace label automatically displayed as <extra>
     fig.update_traces(hovertemplate='Wait: %{y:.1f} hrs on %{x} at: ')
@@ -145,7 +149,7 @@ def my_24h_cosine(x, amplitude, phase, offset):
     :param: offset (int or float) vertical offset (hours)
     :return: amplitude * cos(x*(π/12) + phase) + offset"""
 
-    # 24h day in radians (omega - angular rate)
+    # 24h day in radians (omega is the angular rate)
     radians_per_hour = float(np.pi / 12)
 
     return np.cos(x * radians_per_hour + phase) * amplitude + offset
@@ -154,7 +158,7 @@ def my_24h_cosine(x, amplitude, phase, offset):
 # -------------------------------------------------------------------------------------------------
 
 def get_cos_fit(df):
-    """Uses least squares to get a best-fit curve cosine model.
+    """Uses least-squares to get a best-fit curve cosine model.
     :param: df (pd.DataFrame) Data frame containing the 24 hr data
     :return: (list) and (list) Cosine curve params and y values representing the cosine curve."""
 
@@ -237,13 +241,12 @@ def get_wait_data_hour_dict(df, hospital):
 
 # -------------------------------------------------------------------------------------------------
 
-def get_violin_layout(title_text, x_axis_label, color_mode, dark_mode):
+def get_violin_layout(title_text, x_axis_label, dark_mode):
     """Gets the layout that is common among violin plots.
     :param: title_text (str) The title of the plot
     :param: x_axis_label (str) The label of the x-axis
-    :param: color_mode (dict) Colors containing a key and tuple dictionary for (light/False, dark/True)
     :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
-    retyrb (go.Layout)"""
+    :return: (go.Layout)"""
 
     layout = go.Layout(
         title={'text': title_text,
@@ -258,17 +261,17 @@ def get_violin_layout(title_text, x_axis_label, color_mode, dark_mode):
         font=dict(
             family=FONT_FAMILY,
             size=20,
-            color=color_mode['title'][dark_mode]
+            color=COLOR_MODE['title'][dark_mode]
         ),
-        paper_bgcolor=color_mode['paper_bgcolor'][dark_mode],
-        plot_bgcolor=color_mode['plot_bgcolor'][dark_mode],
-        yaxis={'range': [0, 15]},
+        paper_bgcolor=COLOR_MODE['paper_bgcolor'][dark_mode],
+        plot_bgcolor=COLOR_MODE['plot_bgcolor'][dark_mode],
+        yaxis={'range': Y_AXIS_RANGE},
         hoverdistance=50,
         hoverlabel=dict(
             font=dict(
                 size=16,
                 family=FONT_FAMILY,
-                color=color_mode['hover'][dark_mode]
+                color=COLOR_MODE['hover'][dark_mode]
             )
         )
     )
@@ -279,22 +282,14 @@ def get_violin_layout(title_text, x_axis_label, color_mode, dark_mode):
 # -------------------------------------------------------------------------------------------------
 
 
-def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=True):
+def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline=True, dark_mode=True):
     """Plots as violin data for each hour of the ER wait times.
     :param: city (str) City to be plotted
     :param: hospital (str) Hospital in city to be plotted
+    :param: plot_best_fit (bool) If a best-fit curve is to be generated (default: True)
     :param: plot_offline (bool) If an offline plot is to be generated (default: True)
     :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
     :return: (go.Figure) object"""
-
-    # TODO: Not all keys are used in this function
-    color_mode = {'title': ('black', 'white'),
-                  'hover': ('white', 'black'),
-                  'spikecolor': ('black', 'white'),
-                  'paper_bgcolor': ('white', 'black'),
-                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
-                  'an_bgcolor': ('#FFFFE0', 'white'),
-                  'an_text_color': ('black', 'navy')}
 
     html_file = city + '_' + hospital + "_violin.html"
 
@@ -302,47 +297,47 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
     df = pd.read_csv(city + "_hospital_stats.csv")
 
     # Filter data
-    df3 = filter_df(df)
+    df2 = filter_df(df)
 
     # Filter data by hospital
-    df3 = df3[['time_stamp', hospital]].copy()
+    df2 = df2[['time_stamp', hospital]].copy()
 
     # Span of data for sub-title
-    min_date = min(df3['time_stamp'].dt.date)
-    max_date = max(df3['time_stamp'].dt.date)
+    min_date = min(df2['time_stamp'].dt.date)
+    max_date = max(df2['time_stamp'].dt.date)
 
-    df4, hour_dict = get_wait_data_hour_dict(df3, hospital)
+    df3, hour_dict = get_wait_data_hour_dict(df2, hospital)
 
     # Don't plot best fit curve if midnight column is entirely NaN
-    plot_bestfit = not df4[0].isnull().any()
+    plot_best_curve = df3[0].isna().sum() != len(df3[0]) and plot_best_fit
 
-    if plot_bestfit:
-        curve_param, cosine_curve_fit = get_cos_fit(df4)
+    if plot_best_curve:
+        curve_param, cosine_curve_fit = get_cos_fit(df3)
 
         # Cosine best-fit curve
         plot_cosine = go.Scatter(x=list(hour_dict.values()), y=cosine_curve_fit, name="Average",
                                  line=dict(width=4, color='red'))
 
     layout = get_violin_layout(hospital + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Time',
-                               color_mode, dark_mode)
+                               dark_mode)
 
     fig = go.Figure(layout=layout)
 
     for hour in range(0, HOURS_IN_DAY):
-        fig.add_trace(go.Violin(x0=hour_dict[hour], y=df4[hour],
+        fig.add_trace(go.Violin(x0=hour_dict[hour], y=df3[hour],
                                 box_visible=True,
                                 meanline_visible=True,
                                 name=hour_dict[hour],
                                 opacity=0.9))
 
-    if plot_bestfit:
+    if plot_best_curve:
         fig.add_trace(plot_cosine)
 
         # LaTeX/MathJax format to show the model equation and stat values
         model_equation = r"$\normalsize{a\cos(\omega t + \phi) + k}$"
         model_results = r"$a={:.1f} hrs\\\omega=24hrs/day\\\phi={:.1f} hrs\\k={:.1f} hrs$".format(curve_param[0],
-                                                                                                  curve_param[
-                                                                                                      1] * 2 * np.pi,
+                                                                                                  curve_param[1]
+                                                                                                  * 2 * np.pi,
                                                                                                   curve_param[2])
         equation_to_show = r"$\displaylines{" + model_equation[1:-1] + r"\\" + model_results[1:-1] + r"}$"
 
@@ -362,13 +357,14 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
         bordercolor = "red"
         borderwidth = 3
         borderpad = 35
-        bgcolor = color_mode['an_bgcolor'][dark_mode]
+        bgcolor = COLOR_MODE['an_bgcolor'][dark_mode]
 
         # Arrow annotation of the equation of the curve
         fig.add_annotation(x=x_annotation_point, y=y_annotation_point, text=equation_to_show, showarrow=True,
                            arrowhead=arrowhead, arrowsize=arrowsize, arrowwidth=arrowwidth, arrowcolor=arrowcolor,
                            bordercolor=bordercolor, borderpad=borderpad, borderwidth=borderwidth, bgcolor=bgcolor,
-                           ax=x_arrow_vector, ay=y_arrow_vector, font=dict(color=color_mode['an_text_color'][dark_mode]))
+                           ax=x_arrow_vector, ay=y_arrow_vector,
+                           font=dict(color=COLOR_MODE['an_text_color'][dark_mode]))
 
     if plot_offline:
         pyo.plot(fig, filename=html_file, include_mathjax='cdn', config={'responsive': True})
@@ -379,17 +375,11 @@ def plot_hospital_hourly_violin(city, hospital, plot_offline=True, dark_mode=Tru
 # -------------------------------------------------------------------------------------------------
 
 def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
-    """TBD"""
-
-    # TODO: Not all keys are used in this function
-    # TODO: Also duplicate
-    color_mode = {'title': ('black', 'white'),
-                  'hover': ('white', 'black'),
-                  'spikecolor': ('black', 'white'),
-                  'paper_bgcolor': ('white', 'black'),
-                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
-                  'an_bgcolor': ('#FFFFE0', 'white'),
-                  'an_text_color': ('black', 'navy')}
+    """Plots all hospitals (all timestamps) violin data.
+    :param: city (str) City to be plotted
+    :param: plot_offline (bool) If an offline plot is to be generated (default: True)
+    :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
+    :return: (go.Figure) object"""
 
     html_file = city + "_hospitals_violin.html"
 
@@ -404,7 +394,7 @@ def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
     max_date = max(df['time_stamp'].dt.date)
 
     layout = get_violin_layout(city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Hospital',
-                               color_mode, dark_mode)
+                               dark_mode)
 
     fig = go.Figure(layout=layout)
 
@@ -426,48 +416,83 @@ def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
 
 # -------------------------------------------------------------------------------------------------
 
+def set_subplot_yaxes(fig, num_hospitals):
+    """Sets the range of all subplot y-axes values.
+    :param: fig (go.Figure) object
+    :param: num_hospitals (int) number of hospitals in the city
+    :return: None"""
+
+    set_yaxes = {}
+
+    for i in range(1, num_hospitals + 1):
+        if i == 1:
+            set_yaxes['yaxis'] = dict(range=Y_AXIS_RANGE)
+        else:
+            set_yaxes[f'yaxis{i}'] = dict(range=Y_AXIS_RANGE)
+
+    fig.update_layout(**set_yaxes)
+
+
+# -------------------------------------------------------------------------------------------------
+
+
+def set_subplot_xaxes(fig, num_hospitals):
+    """Sets the tick labels on the last 2 plots at the bottom.
+    :param: fig (go.Figure) object
+    :param: num_hospitals (int) number of hospitals in the city
+    :return: None"""
+
+    set_xaxes = {f'xaxis{num_hospitals - 1}_showticklabels': True,
+                 f'xaxis{num_hospitals}_showticklabels': True}
+
+    fig.update_layout(**set_xaxes)
+
+
+# -------------------------------------------------------------------------------------------------
+
+def get_subplot_dict():
+    """Gets 2 dictionaries containing layout for subplots that involve a max of 2 columns.
+    :param: None
+    :return: (dict) subplot_dimensions - Dimensions of the subplot based on the input int size
+    :return: (dict) subplot_locations - The order of the subplot locations, starting top left and going right then down
+    """
+
+    subplot_dimensions = {}
+    subplot_locations = {}
+
+    # Theoretical max # of hospitals per city
+    max_hospitals = 20
+
+    for i in range(max_hospitals):
+
+        if i % 2 == 0:
+            subplot_dimensions[i] = (int(i / 2), 2)
+            subplot_locations[i] = (int(i / 2), 2)
+        else:
+            subplot_dimensions[i] = (int(i / 2) + 1, 2)
+            subplot_locations[i] = (int(i / 2) + 1, 1)
+
+    subplot_dimensions[0] = (0, 0)
+    subplot_locations[0] = (0, 0)
+    subplot_dimensions[1] = (1, 0)
+    subplot_dimensions[2] = (1, 2)
+
+    return subplot_dimensions, subplot_locations
+
+
+# -------------------------------------------------------------------------------------------------
+
 def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
-    """TBD"""
+    """Plots all the hourly violin charts as subplots for a particular city.
+    :param: city (str) City to be plotted
+    :param: plot_offline (bool) If an offline plot is to be generated (default: True)
+    :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
+    :return: (go.Figure) object
+    """
 
     html_file = city + '_subplots.html'
 
-    color_mode = {'title': ('black', 'white'),
-                  'hover': ('white', 'black'),
-                  'spikecolor': ('black', 'white'),
-                  'paper_bgcolor': ('white', 'black'),
-                  'plot_bgcolor': ('#D6D6D6', '#3A3F44'),
-                  'an_bgcolor': ('#FFFFE0', 'white'),
-                  'an_text_color': ('black', 'navy')}
-
-    # TODO: There is an algorithm for generating this
-    subplot_dimensions = {0: (0, 0),
-                          1: (1, 0),
-                          2: (2, 0),
-                          3: (2, 1),
-                          4: (2, 2),
-                          5: (3, 2),
-                          6: (3, 2),
-                          7: (4, 2),
-                          8: (4, 2),
-                          9: (5, 2),
-                          10: (5, 2),
-                          11: (6, 2),
-                          12: (6, 2)}
-
-    # This works for sizes 7-12, max cols 2
-    subplot_location = {0: (0, 0),
-                        1: (1, 1),
-                        2: (1, 2),
-                        3: (2, 1),
-                        4: (2, 2),
-                        5: (3, 1),
-                        6: (3, 2),
-                        7: (4, 1),
-                        8: (4, 2),
-                        9: (5, 1),
-                        10: (5, 2),
-                        11: (6, 1),
-                        12: (6, 2)}
+    subplot_dimensions, subplot_locations = get_subplot_dict()
 
     df = pd.read_csv(city + "_hospital_stats.csv")
 
@@ -482,13 +507,15 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
     max_date = max(df2['time_stamp'].dt.date)
 
     num_hospitals = len(df2.columns) - 1
-
     rows, cols = subplot_dimensions[num_hospitals]
 
-    fig = make_subplots(rows=rows, cols=cols, shared_xaxes=True, subplot_titles=hospitals, vertical_spacing=0.03)
+    fig = make_subplots(rows=rows, cols=cols, shared_xaxes=True, subplot_titles=hospitals, vertical_spacing=0.03,
+                        y_title="Wait time in Hours")
+
+    # y_title font size, it is an annotation that is at the end of the layout list
+    fig.layout.annotations[-1]["font"] = {'size': 30}
 
     figures_dict = {}
-
     counter = 0
 
     for hospital in df2:
@@ -497,22 +524,41 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
             continue
 
         counter += 1
-
-        figures_dict[hospital] = plot_hospital_hourly_violin(city, hospital, False, True)
-
-        row, col = subplot_location[counter]
+        figures_dict[hospital] = plot_hospital_hourly_violin(city, hospital, False, False, dark_mode)
+        row, col = subplot_locations[counter]
 
         for trace in figures_dict[hospital].data:
             fig.add_trace(trace, row=row, col=col)
 
-    # layout = get_violin_layout(city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Hospital',
-    #                            color_mode, dark_mode)
+    fig.update_layout(
+        title={'text': f"{city} Hospitals ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>",
+               'x': 0.5,
+               'y': 0.985,
+               'xanchor': 'center',
+               'yanchor': 'top'},
+        font=dict(
+            family=FONT_FAMILY,
+            size=20,
+            color=COLOR_MODE['title'][dark_mode]
+        ),
+        showlegend=False, height=2000,
+        paper_bgcolor=COLOR_MODE['paper_bgcolor'][dark_mode],
+        plot_bgcolor=COLOR_MODE['plot_bgcolor'][dark_mode],
+        hoverdistance=50,
+        hoverlabel=dict(
+            font=dict(
+                size=16,
+                family=FONT_FAMILY,
+                color=COLOR_MODE['hover'][dark_mode]
+            )
+        )
+    )
 
-    fig.update_layout(title_text=f"{city} Hospitals ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>",
-                      showlegend=False, height=2000, xaxis6_showticklabels=True, xaxis7_showticklabels=True)
+    # Set x-axis tick mark labels
+    set_subplot_xaxes(fig, num_hospitals)
 
-    # fig.update_xaxes(scaleanchor='x')
-    print(fig.layout)
+    # Make all subplot y-axes consistent
+    set_subplot_yaxes(fig, num_hospitals)
 
     if plot_offline:
         pyo.plot(fig, filename=html_file, config={'responsive': True})
@@ -533,8 +579,10 @@ if __name__ == "__main__":
     # plot_hospital_hourly_violin("Calgary", "Rockyview General Hospital")
     # plot_hospital_hourly_violin("Calgary", "Sheldon M. Chumir Centre")
     # plot_hospital_hourly_violin("Calgary", "South Calgary Health Centre")
-    #
+
     # plot_all_hospitals_violin("Calgary")
     # plot_all_hospitals_violin("Edmonton")
 
-    plot_subplots_hour_violin("Calgary")
+    # TODO: Height needs ot be increased for Edm and max y reduced
+    # plot_subplots_hour_violin("Calgary")
+    plot_subplots_hour_violin("Edmonton")
