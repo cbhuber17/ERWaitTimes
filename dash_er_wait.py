@@ -8,10 +8,10 @@ import dash_daq as daq
 import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-from plot_er_wait_stats import plot_line, FONT_FAMILY
+from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, FONT_FAMILY
 from capture_er_wait_data import URL
 
-app = dash.Dash(__name__, assets_folder='assets')
+app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Tiems')
 
 server = app.server
 
@@ -52,6 +52,9 @@ app.layout = html.Div([
     html.Hr(),
     dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
     html.Hr(),
+    dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto', figure=plot_subplots_hour_violin("Calgary", False)),
+    html.Hr(),
+    dcc.Graph(id='violin-yeg', mathjax='cdn', responsive='auto', figure=plot_subplots_hour_violin("Edmonton", False)),
     html.Footer(
         [
             html.Div(
@@ -145,6 +148,19 @@ def update_line(dark_mode):
 
     return fig_yyc, fig_yeg
 
+
+# ------------------------------------------------------------------------
+
+@app.callback([Output('violin-yyc', 'figure'), Output('violin-yeg', 'figure')], [Input('dark-mode-switch', 'value')])
+def update_violin(dark_mode):
+
+    fig_yyc = plot_subplots_hour_violin("Calgary", False, dark_mode)
+    fig_yeg = plot_subplots_hour_violin("Edmonton", False, dark_mode)
+
+    fig_yyc.update_layout(transition_duration=500)
+    fig_yeg.update_layout(transition_duration=500)
+
+    return fig_yyc, fig_yeg
 
 # ------------------------------------------------------------------------
 
