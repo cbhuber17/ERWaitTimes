@@ -55,6 +55,7 @@ app.layout = html.Div([
     dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto', figure=plot_subplots_hour_violin("Calgary", False)),
     html.Hr(),
     dcc.Graph(id='violin-yeg', mathjax='cdn', responsive='auto', figure=plot_subplots_hour_violin("Edmonton", False)),
+    # TODO: Table of stats
     html.Footer(
         [
             html.Div(

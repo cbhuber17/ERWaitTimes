@@ -11,7 +11,7 @@ from capture_er_wait_data import DATE_TIME_FORMAT
 FONT_FAMILY = "Helvetica"
 HOURS_IN_DAY = 24
 HALF_DAY_HOURS = 12
-Y_AXIS_RANGE = [0, 20]  # Hours
+Y_AXIS_RANGE = [0, 15]  # Hours
 
 # Dark/light mode colors
 COLOR_MODE = {'title': ('black', 'white'),
@@ -509,7 +509,16 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
     num_hospitals = len(df2.columns) - 1
     rows, cols = subplot_dimensions[num_hospitals]
 
-    fig = make_subplots(rows=rows, cols=cols, shared_xaxes=True, subplot_titles=hospitals, vertical_spacing=0.03,
+    # Layout (pixels)
+    height = rows*500
+
+    # TODO: Function
+    # TODO: Link on Dash
+    hospital_links = []
+    for hospital in hospitals:
+        hospital_links.append(f"<a href=\"{city}_{hospital}_violin.html\">{hospital}</a>")
+
+    fig = make_subplots(rows=rows, cols=cols, shared_xaxes=True, subplot_titles=hospital_links, vertical_spacing=0.03,
                         y_title="Wait time in Hours")
 
     # y_title font size, it is an annotation that is at the end of the layout list
@@ -541,7 +550,8 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
             size=20,
             color=COLOR_MODE['title'][dark_mode]
         ),
-        showlegend=False, height=2000,
+        showlegend=False,
+        height=height,
         paper_bgcolor=COLOR_MODE['paper_bgcolor'][dark_mode],
         plot_bgcolor=COLOR_MODE['plot_bgcolor'][dark_mode],
         hoverdistance=50,
@@ -583,6 +593,5 @@ if __name__ == "__main__":
     # plot_all_hospitals_violin("Calgary")
     # plot_all_hospitals_violin("Edmonton")
 
-    # TODO: Height needs ot be increased for Edm and max y reduced
-    # plot_subplots_hour_violin("Calgary")
+    plot_subplots_hour_violin("Calgary")
     plot_subplots_hour_violin("Edmonton")
