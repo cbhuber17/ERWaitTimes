@@ -143,7 +143,7 @@ def display_page(pathname):
     if pathname == '/':
         return main_layout()
     elif hospital_url in yyc_hospitals:
-        return get_violin_layout("Calgary", hospital_name)  #TODO: Need to get dark_mode in here
+        return get_violin_layout("Calgary", hospital_name)  # TODO: Need to get dark_mode in here
     elif hospital_url in yeg_hospitals:
         return get_violin_layout("Edmonton", hospital_name)
     else:
@@ -215,6 +215,10 @@ def update_line(dark_mode):
 
 @app.callback([Output('violin-yyc', 'figure'), Output('violin-yeg', 'figure')], [Input('dark-mode-switch', 'value')])
 def update_violin(dark_mode):
+    """CALLBACK: Updates the violin subplots based on the dark mode selected.
+    TRIGGER: Upon page load or toggling the dark mode switch.
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :return: (go.Figure) x 2 for Calgary and Edmonton."""
     fig_yyc = plot_subplots_hour_violin("Calgary", False, dark_mode)
     fig_yeg = plot_subplots_hour_violin("Edmonton", False, dark_mode)
 
