@@ -8,6 +8,8 @@ import numpy as np
 from scipy.optimize import curve_fit
 from capture_er_wait_data import DATE_TIME_FORMAT
 
+# TODO: 7-day average of line plot
+
 FONT_FAMILY = "Helvetica"
 HOURS_IN_DAY = 24
 HALF_DAY_HOURS = 12
@@ -482,6 +484,21 @@ def get_subplot_dict():
 
 # -------------------------------------------------------------------------------------------------
 
+def get_hospital_links(hospitals):
+    """Returns a list of URLs for each hospital.
+    :param: hospitals (list) A list of hospitals
+    :return: A list of hospital URLs"""
+
+    hospital_links = []
+    for hospital in hospitals:
+        hospital_url = hospital.replace(" ", "_")
+        hospital_links.append(f"<a href=\"{hospital_url}\">{hospital}</a>")
+
+    return hospital_links
+
+# -------------------------------------------------------------------------------------------------
+
+
 def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
     """Plots all the hourly violin charts as subplots for a particular city.
     :param: city (str) City to be plotted
@@ -509,17 +526,11 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
     num_hospitals = len(df2.columns) - 1
     rows, cols = subplot_dimensions[num_hospitals]
 
-    # Layout (pixels)
+    # Layout height (pixels)
     height = rows*500
 
-    # TODO: Function
-    # TODO: Link on Dash
-    hospital_links = []
-    for hospital in hospitals:
-        hospital_links.append(f"<a href=\"{city}_{hospital}_violin.html\">{hospital}</a>")
-
-    fig = make_subplots(rows=rows, cols=cols, shared_xaxes=True, subplot_titles=hospital_links, vertical_spacing=0.03,
-                        y_title="Wait time in Hours")
+    fig = make_subplots(rows=rows, cols=cols, shared_xaxes=True, subplot_titles=get_hospital_links(hospitals),
+                        vertical_spacing=0.03, y_title="Wait time in Hours")
 
     # y_title font size, it is an annotation that is at the end of the layout list
     fig.layout.annotations[-1]["font"] = {'size': 30}
@@ -584,7 +595,7 @@ if __name__ == "__main__":
 
     # plot_hospital_hourly_violin("Calgary", "South Health Campus")
     # plot_hospital_hourly_violin("Calgary", "Alberta Children's Hospital")
-    # plot_hospital_hourly_violin("Calgary", "Foothills Medical Centre")
+    plot_hospital_hourly_violin("Calgary", "Foothills Medical Centre")
     # plot_hospital_hourly_violin("Calgary", "Peter Lougheed Centre")
     # plot_hospital_hourly_violin("Calgary", "Rockyview General Hospital")
     # plot_hospital_hourly_violin("Calgary", "Sheldon M. Chumir Centre")
