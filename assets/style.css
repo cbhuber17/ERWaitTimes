@@ -1,8 +1,12 @@
-#line-yyc {
+*[id^='line-']{
     height: 100vh;
 }
 
-#line-yeg {
+*[id^='Calgary-']{
+    height: 100vh;
+}
+
+*[id^='Edmonton-']{
     height: 100vh;
 }
 

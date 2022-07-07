@@ -7,86 +7,147 @@ from dash import html
 import dash_daq as daq
 import pandas as pd
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
-from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, FONT_FAMILY
+from dash.exceptions import PreventUpdate  # TODO: May need removing
+from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY
 from capture_er_wait_data import URL
 
-app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Tiems')
+app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times', update_title='Please wait...')
 
 server = app.server
 
-# TODO: Live updating and adding to CSV
+# TODO: Live updating and adding to CSV/mongo
 df_yyc = pd.read_csv('Calgary_hospital_stats.csv')
 df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
 
-# Dash HTML layout
+yyc_hospitals = [x.replace(" ", "_") for x in list(df_yyc.columns)]
+yeg_hospitals = [x.replace(" ", "_") for x in list(df_yeg.columns)]
+
+
+# ------------------------------------------------------------------------
+
 app.layout = html.Div([
     dcc.Location(id='url'), dcc.Store(id='viewport-container', data={}, storage_type='session'),
-    html.Header(
-        [
-            html.A(
-                [
-                    html.Img(id='ahs-logo', src='assets/ahs.jpg')
-                ], href='https://www.albertahealthservices.ca/'
-            ),
-            html.H1("Alberta ER Wait Times")
-        ]
-    ),
-    html.H4(
-        ["Source: ",
-         html.A(
-             [f"{URL}"], id="url-link", href=f"{URL}")
-         ], id="h4"),
+    html.Div(id='page-content')
+])
 
-    html.Div(
-        [
-            daq.ToggleSwitch(id='dark-mode-switch',
-                             label={'label': 'View Page in Dark Mode:', 'style': {'font-size': '20px'}},
-                             value=True,
-                             size=50,
-                             color='orange')
-        ]
-    ),
-    html.Hr(),
-    dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
-    html.Hr(),
-    dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
-    html.Hr(),
-    dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto', figure=plot_subplots_hour_violin("Calgary", False)),
-    html.Hr(),
-    dcc.Graph(id='violin-yeg', mathjax='cdn', responsive='auto', figure=plot_subplots_hour_violin("Edmonton", False)),
-    # TODO: Table of stats
-    html.Footer(
-        [
-            html.Div(
-                ['This page was created using python apps: Plotly and Dash'],
-                id='footer-note'
-            ),
-            html.Div(
-                ['Contact:'],
-                id='footer-contact'
-            ),
-            html.A(
-                [
-                    html.Img(src='assets/fb.png',
-                             id='fb-img')
-                ],
-                href='https://www.facebook.com/cbhuber/'
-            ),
-            html.A(
-                [
-                    html.Img(src='assets/li.png',
-                             id='li-img')
-                ],
-                href='https://www.linkedin.com/in/cbhuber/'
-            ),
-            html.Div(
-                ['Ⓒ Colin Huber 2022, Distributed under the MIT License'],
-                id='copyright'
-            )
-        ]
-    )
-], id='main')
+
+# ------------------------------------------------------------------------
+
+def main_layout():
+    """Returns the main/default (index) layout of the page.
+    :param: None
+    :return: dash HTML layout of the violin plot of the hospital."""
+
+    layout = html.Div([
+        html.Header(
+            [
+                html.A(
+                    [
+                        html.Img(id='ahs-logo', src='assets/ahs.jpg')
+                    ], href='https://www.albertahealthservices.ca/'
+                ),
+                html.H1("Alberta ER Wait Times")
+            ]
+        ),
+        html.H4(
+            ["Source: ",
+             html.A(
+                 [f"{URL}"], id="url-link", href=f"{URL}")
+             ], id="h4"),
+
+        html.Div(
+            [
+                daq.ToggleSwitch(id='dark-mode-switch',
+                                 label={'label': 'View Page in Dark Mode:', 'style': {'font-size': '20px'}},
+                                 value=True,
+                                 size=50,
+                                 color='orange')
+            ]
+        ),
+        html.Hr(),
+        dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
+        html.Hr(),
+        dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
+        html.Hr(),
+        dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto',
+                  figure=plot_subplots_hour_violin("Calgary", False)),
+        html.Hr(),
+        dcc.Graph(id='violin-yeg', mathjax='cdn', responsive='auto',
+                  figure=plot_subplots_hour_violin("Edmonton", False)),
+        # TODO: Table of stats
+        html.Footer(
+            [
+                html.Div(
+                    ['This page was created using python apps: Plotly and Dash'],
+                    id='footer-note'
+                ),
+                html.Div(
+                    ['Contact:'],
+                    id='footer-contact'
+                ),
+                html.A(
+                    [
+                        html.Img(src='assets/fb.png',
+                                 id='fb-img')
+                    ],
+                    href='https://www.facebook.com/cbhuber/'
+                ),
+                html.A(
+                    [
+                        html.Img(src='assets/li.png',
+                                 id='li-img')
+                    ],
+                    href='https://www.linkedin.com/in/cbhuber/'
+                ),
+                html.Div(
+                    ['Ⓒ Colin Huber 2022, Distributed under the MIT License'],
+                    id='copyright'
+                )
+            ]
+        )
+    ], id='main')
+
+    return layout
+
+
+# ------------------------------------------------------------------------
+
+def get_violin_layout(city, hospital):
+    """Gets a single hospital violin plot to display on an entire page.
+    :param: city (str) City containing the hospital
+    :param: hospital (str) Hospital to be plotted
+    :return: dash HTML layout of the violin plot of the hospital."""
+
+    layout = html.Div([
+        dcc.Graph(id=f'{city}-{hospital}', mathjax='cdn', responsive='auto',
+                  figure=plot_hospital_hourly_violin(city, hospital, True, False, True))
+    ])
+
+    return layout
+
+
+# ------------------------------------------------------------------------
+
+# Update the index
+@app.callback(Output('page-content', 'children'),
+              [Input('url', 'pathname')])
+def display_page(pathname):
+    """CALLBACK: Updates the page content based on the URL.
+    TRIGGER: Upon page loading and when the URL changes
+    :param: pathname (str) The URL in the browser
+    :return: dash HTML layout based on the URL."""
+
+    hospital_url = pathname.split('/')[-1]
+    hospital_name = hospital_url.replace("_", " ")
+
+    if pathname == '/':
+        return main_layout()
+    elif hospital_url in yyc_hospitals:
+        return get_violin_layout("Calgary", hospital_name)  #TODO: Need to get dark_mode in here
+    elif hospital_url in yeg_hospitals:
+        return get_violin_layout("Edmonton", hospital_name)
+    else:
+        return main_layout()
 
 
 # ------------------------------------------------------------------------
@@ -154,7 +215,6 @@ def update_line(dark_mode):
 
 @app.callback([Output('violin-yyc', 'figure'), Output('violin-yeg', 'figure')], [Input('dark-mode-switch', 'value')])
 def update_violin(dark_mode):
-
     fig_yyc = plot_subplots_hour_violin("Calgary", False, dark_mode)
     fig_yeg = plot_subplots_hour_violin("Edmonton", False, dark_mode)
 
@@ -163,7 +223,9 @@ def update_violin(dark_mode):
 
     return fig_yyc, fig_yeg
 
+
 # ------------------------------------------------------------------------
+
 
 """CALLBACK: A client callback to execute JS in a browser session to get the screen width and height.
 TRIGGER: Upon page loading.
