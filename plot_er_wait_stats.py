@@ -48,6 +48,9 @@ def plot_line(city, plot_offline=True, dark_mode=True):
     # Convert all string to datetime objects
     df2.loc[:, 'time_stamp'] = pd.to_datetime(df2['time_stamp'], format=DATE_TIME_FORMAT)
 
+    min_date = min(df2['time_stamp'].dt.date)
+    max_date = max(df2['time_stamp'].dt.date)
+
     # Convert to hours for better readability
     for hospital in df2.columns:
         if hospital == 'time_stamp':
@@ -65,7 +68,7 @@ def plot_line(city, plot_offline=True, dark_mode=True):
     ) for hospital_name in df2.columns if hospital_name != 'time_stamp']
 
     layout = go.Layout(
-        title={'text': city + ' ER Wait Times',
+        title={'text': city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>',
                'x': 0.5,
                'y': 0.95,
                'xanchor': 'center',
