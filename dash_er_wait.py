@@ -4,6 +4,7 @@ features."""
 import dash
 from dash import dcc
 from dash import html
+from dash import dash_table
 import dash_daq as daq
 import pandas as pd
 from dash.dependencies import Input, Output
@@ -22,6 +23,23 @@ df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
 yyc_hospitals = [x.replace(" ", "_") for x in list(df_yyc.columns)]
 yeg_hospitals = [x.replace(" ", "_") for x in list(df_yeg.columns)]
 
+# TODO: Function for stats df
+yyc_stats = pd.DataFrame()
+stats = {'Hospital': [], 'Average Wait (hrs)': [], 'Standard Dev Wait (hrs)': []}
+for hospital in df_yyc.columns:
+    if hospital == 'time_stamp':
+        continue
+
+    stats['Hospital'].append(hospital)
+    stats['Average Wait (hrs)'].append(df_yyc[hospital].mean() / 60.0)
+    stats['Standard Dev Wait (hrs)'].append(df_yyc[hospital].std() / 60.0)
+
+yyc_stats['Hospital'] = stats['Hospital']
+yyc_stats['Average Wait (hrs)'] = stats['Average Wait (hrs)']
+yyc_stats['Standard Dev Wait (hrs)'] = stats['Standard Dev Wait (hrs)']
+
+yyc_stats = yyc_stats.dropna(axis=0)
+yyc_stats = yyc_stats.round(decimals=1)
 
 # ------------------------------------------------------------------------
 
@@ -67,6 +85,29 @@ def main_layout():
         html.Hr(),
         dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
         html.Hr(),
+        # TODO: Table of stats
+        html.Div(
+            [
+                dash_table.DataTable(data=yyc_stats.to_dict('records'),
+                                     style_cell={'textAlign': 'center',
+                                                 'height': 'auto',
+                                                 # 'minWidth': '250px', 'width': '250px', 'maxWidth': '250px',
+                                                 'whiteSpace': 'normal',
+                                                 },
+                                     # style_header={'whiteSpace': 'normal'},
+                                     style_cell_conditional=[
+                                         {'if': {'column_id': 'Average Wait (hrs)'},
+                                          'width': '150px'},
+                                         {'if': {'column_id': 'Standard Dev Wait (hrs)'},
+                                          'width': '150px'},
+                                     ],
+                                     fill_width=False,
+                                     style_table={'overflowX': 'auto'},
+                                     columns=[{"name": i, "id": i} for i in yyc_stats.columns]
+                                     ),
+            ], className='center',
+        ),
+        html.Hr(),
         dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
         html.Hr(),
         dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto',
@@ -74,7 +115,6 @@ def main_layout():
         html.Hr(),
         dcc.Graph(id='violin-yeg', mathjax='cdn', responsive='auto',
                   figure=plot_subplots_hour_violin("Edmonton", False)),
-        # TODO: Table of stats
         html.Footer(
             [
                 html.Div(
@@ -128,7 +168,6 @@ def get_violin_layout(city, hospital):
 
 # ------------------------------------------------------------------------
 
-# Update the index
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
