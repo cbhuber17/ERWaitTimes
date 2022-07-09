@@ -40,19 +40,24 @@ def get_table_stats_container(df):
     :param: df (pandas.df) City data frame read from csv file
     :return dbc.Container containing the HTML code for displaying the table."""
 
+    hospital_header = 'Hospital'
+    avg_header = 'Average Wait (hrs)'
+    std_header = 'Standard Dev Wait (hrs)'
+
     df_stats = pd.DataFrame()
-    stats = {'Hospital': [], 'Average Wait (hrs)': [], 'Standard Dev Wait (hrs)': []}
+    stats = {hospital_header: [], avg_header: [], std_header: []}
+
     for hospital in df.columns:
         if hospital == 'time_stamp':
             continue
 
-        stats['Hospital'].append(hospital)
-        stats['Average Wait (hrs)'].append(df[hospital].mean() / 60.0)
-        stats['Standard Dev Wait (hrs)'].append(df[hospital].std() / 60.0)
+        stats[hospital_header].append(hospital)
+        stats[avg_header].append(df[hospital].mean() / 60.0)
+        stats[std_header].append(df[hospital].std() / 60.0)
 
-    df_stats['Hospital'] = stats['Hospital']
-    df_stats['Average Wait (hrs)'] = stats['Average Wait (hrs)']
-    df_stats['Standard Dev Wait (hrs)'] = stats['Standard Dev Wait (hrs)']
+    df_stats[hospital_header] = stats[hospital_header]
+    df_stats[avg_header] = stats[avg_header]
+    df_stats[std_header] = stats[std_header]
 
     df_stats = df_stats.dropna(axis=0)
     df_stats = df_stats.round(decimals=1)
@@ -67,9 +72,9 @@ def get_table_stats_container(df):
                                              'whiteSpace': 'normal',
                                              },
                                  style_cell_conditional=[
-                                     {'if': {'column_id': 'Average Wait (hrs)'},
+                                     {'if': {'column_id': avg_header},
                                       'width': '150px'},
-                                     {'if': {'column_id': 'Standard Dev Wait (hrs)'},
+                                     {'if': {'column_id': std_header},
                                       'width': '150px'},
                                  ],
                                  fill_width=False,

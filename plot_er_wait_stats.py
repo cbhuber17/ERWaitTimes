@@ -14,6 +14,7 @@ FONT_FAMILY = "Helvetica"
 HOURS_IN_DAY = 24
 HALF_DAY_HOURS = 12
 Y_AXIS_RANGE = [0, 15]  # Hours
+TIME_STAMP_HEADER = 'time_stamp'
 
 # Dark/light mode colors
 COLOR_MODE = {'title': ('black', 'white'),
@@ -46,26 +47,26 @@ def plot_line(city, plot_offline=True, dark_mode=True):
     df2 = df2.dropna(axis=1, how='all')
 
     # Convert all string to datetime objects
-    df2.loc[:, 'time_stamp'] = pd.to_datetime(df2['time_stamp'], format=DATE_TIME_FORMAT)
+    df2.loc[:, TIME_STAMP_HEADER] = pd.to_datetime(df2[TIME_STAMP_HEADER], format=DATE_TIME_FORMAT)
 
-    min_date = min(df2['time_stamp'].dt.date)
-    max_date = max(df2['time_stamp'].dt.date)
+    min_date = min(df2[TIME_STAMP_HEADER].dt.date)
+    max_date = max(df2[TIME_STAMP_HEADER].dt.date)
 
     # Convert to hours for better readability
     for hospital in df2.columns:
-        if hospital == 'time_stamp':
+        if hospital == TIME_STAMP_HEADER:
             continue
 
         df2[hospital] = df2[hospital].astype("float64")
         df2[hospital] /= 60.0
 
     traces = [go.Scatter(
-        x=df2['time_stamp'],
+        x=df2[TIME_STAMP_HEADER],
         y=df2[hospital_name],
         mode='lines',
         name=hospital_name,
         connectgaps=True,
-    ) for hospital_name in df2.columns if hospital_name != 'time_stamp']
+    ) for hospital_name in df2.columns if hospital_name != TIME_STAMP_HEADER]
 
     layout = go.Layout(
         title={'text': city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>',
@@ -196,7 +197,7 @@ def get_cos_fit(df):
 def filter_df(df):
     """Does initial filter of data frame:
     - Drops any columns/hospitals that have NaN data
-    - Converts all time_stamp column elements to datetime objects
+    - Converts all TIME_STAMP_HEADER column elements to datetime objects
     - Converts the wait time from minutes to hours
     :param: df (pd.DataFrame) The dataframe from a csv file
     :return: (pd.DataFrame) filtered df."""
@@ -206,11 +207,11 @@ def filter_df(df):
     df2 = df2.dropna(axis=1, how='all')
 
     # Convert all string to datetime objects
-    df2.loc[:, 'time_stamp'] = pd.to_datetime(df2['time_stamp'], format=DATE_TIME_FORMAT)
+    df2.loc[:, TIME_STAMP_HEADER] = pd.to_datetime(df2[TIME_STAMP_HEADER], format=DATE_TIME_FORMAT)
 
     # Convert to hours for better readability
     for wait_time in df2.columns:
-        if wait_time == 'time_stamp':
+        if wait_time == TIME_STAMP_HEADER:
             continue
 
         df2[wait_time] = df2[wait_time].astype("float64")
@@ -223,7 +224,7 @@ def filter_df(df):
 
 def get_wait_data_hour_dict(df, hospital):
     """Provides a new data frame to hold wait times at every hour (cols) for every day (rows).
-    :param: df (pd.DataFrame) Filtered dataframe containing time_stamp and hospital columns
+    :param: df (pd.DataFrame) Filtered dataframe containing TIME_STAMP_HEADER and hospital columns
     :param: hospital (str) The hospital to filter data
     :return: (pd.DataFrame) and (dict) of a hours x wait times df and hour_dictionary (e.g hour_dict[0] = '12 AM')
     """
@@ -233,7 +234,7 @@ def get_wait_data_hour_dict(df, hospital):
 
     # Create new df to hold wait times at every hour (cols) for every day (rows)
     for hour in range(0, HOURS_IN_DAY):
-        hour_filter = df.time_stamp.dt.hour == hour
+        hour_filter = df[TIME_STAMP_HEADER].dt.hour == hour
         data[hour] = df[hour_filter][hospital].tolist()
         create_hour_dict(hour, hour_dict)
 
@@ -305,11 +306,11 @@ def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline
     df2 = filter_df(df)
 
     # Filter data by hospital
-    df2 = df2[['time_stamp', hospital]].copy()
+    df2 = df2[[TIME_STAMP_HEADER, hospital]].copy()
 
     # Span of data for sub-title
-    min_date = min(df2['time_stamp'].dt.date)
-    max_date = max(df2['time_stamp'].dt.date)
+    min_date = min(df2[TIME_STAMP_HEADER].dt.date)
+    max_date = max(df2[TIME_STAMP_HEADER].dt.date)
 
     df3, hour_dict = get_wait_data_hour_dict(df2, hospital)
 
@@ -395,8 +396,8 @@ def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
     df = filter_df(df)
 
     # Span of data for sub-title
-    min_date = min(df['time_stamp'].dt.date)
-    max_date = max(df['time_stamp'].dt.date)
+    min_date = min(df[TIME_STAMP_HEADER].dt.date)
+    max_date = max(df[TIME_STAMP_HEADER].dt.date)
 
     layout = get_violin_layout(city + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Hospital',
                                dark_mode)
@@ -404,7 +405,7 @@ def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
     fig = go.Figure(layout=layout)
 
     for hospital in df:
-        if hospital == 'time_stamp':
+        if hospital == TIME_STAMP_HEADER:
             continue
 
         fig.add_trace(go.Violin(x0=hospital, y=df[hospital],
@@ -520,11 +521,11 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
     df2 = filter_df(df)
 
     hospitals = list(df2.columns)
-    hospitals.remove('time_stamp')
+    hospitals.remove(TIME_STAMP_HEADER)
 
     # Span of data for sub-title
-    min_date = min(df2['time_stamp'].dt.date)
-    max_date = max(df2['time_stamp'].dt.date)
+    min_date = min(df2[TIME_STAMP_HEADER].dt.date)
+    max_date = max(df2[TIME_STAMP_HEADER].dt.date)
 
     num_hospitals = len(df2.columns) - 1
     rows, cols = subplot_dimensions[num_hospitals]
@@ -543,7 +544,7 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
 
     for hospital in df2:
 
-        if hospital == 'time_stamp':
+        if hospital == TIME_STAMP_HEADER:
             continue
 
         counter += 1
