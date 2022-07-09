@@ -10,12 +10,12 @@ import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate  # TODO: May need removing
 import dash_bootstrap_components as dbc
-from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY
+from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY, TIME_STAMP_HEADER
 from capture_er_wait_data import URL
 
 app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times', update_title='Please wait...',
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
-
+app.config.suppress_callback_exceptions = True  # Dynamic layout
 server = app.server
 
 # TODO: Live updating and adding to CSV/mongo
@@ -34,7 +34,7 @@ app.layout = html.Div([
 
 
 # ------------------------------------------------------------------------
-
+# TODO: Table dark mode callback
 def get_table_stats_container(df):
     """Provides a HTML container for centering a statistics table for each city dataframe.
     :param: df (pandas.df) City data frame read from csv file
@@ -48,7 +48,7 @@ def get_table_stats_container(df):
     stats = {hospital_header: [], avg_header: [], std_header: []}
 
     for hospital in df.columns:
-        if hospital == 'time_stamp':
+        if hospital == TIME_STAMP_HEADER:
             continue
 
         stats[hospital_header].append(hospital)
@@ -81,11 +81,7 @@ def get_table_stats_container(df):
                                  style_table={'overflowX': 'auto'},
                                  columns=[{"name": i, "id": i} for i in df_stats.columns]
                                  ),
-        ], style={
-            'textAlign': 'center',
-            "margin-left": "auto",  # TODO: CSS
-            "margin-right": "auto",
-        }
+        ],
     )
 
     container = dbc.Container([
