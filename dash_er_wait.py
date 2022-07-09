@@ -28,13 +28,15 @@ yeg_hospitals = [x.replace(" ", "_") for x in list(df_yeg.columns)]
 # ------------------------------------------------------------------------
 
 app.layout = html.Div([
-    dcc.Location(id='url'), dcc.Store(id='viewport-container', data={}, storage_type='session'),
+    dcc.Location(id='url'),
+    dcc.Store(id='viewport-container', data={}, storage_type='session'),
+    dcc.Store(id='dark-mode-value', data=True, storage_type='session'),
     html.Div(id='page-content')
 ])
 
 
 # ------------------------------------------------------------------------
-# TODO: Table dark mode callback
+# TODO: Table dark mode callback for table
 def get_table_stats_container(df):
     """Provides a HTML container for centering a statistics table for each city dataframe.
     :param: df (pandas.df) City data frame read from csv file
@@ -106,9 +108,9 @@ def get_table_stats_container(df):
 
 # ------------------------------------------------------------------------
 
-def main_layout():
+def main_layout(dark_mode):
     """Returns the main/default (index) layout of the page.
-    :param: None
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return: dash HTML layout of the violin plot of the hospital."""
 
     layout = html.Div([
@@ -132,7 +134,7 @@ def main_layout():
             [
                 daq.ToggleSwitch(id='dark-mode-switch',
                                  label={'label': 'View Page in Dark Mode:', 'style': {'font-size': '20px'}},
-                                 value=True,
+                                 value=dark_mode,
                                  size=50,
                                  color='orange')
             ]
@@ -188,15 +190,16 @@ def main_layout():
 
 # ------------------------------------------------------------------------
 
-def get_violin_layout(city, hospital):
+def get_violin_layout(city, hospital, dark_mode):
     """Gets a single hospital violin plot to display on an entire page.
     :param: city (str) City containing the hospital
     :param: hospital (str) Hospital to be plotted
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return: dash HTML layout of the violin plot of the hospital."""
 
     layout = html.Div([
         dcc.Graph(id=f'{city}-{hospital}', mathjax='cdn', responsive='auto',
-                  figure=plot_hospital_hourly_violin(city, hospital, True, False, True))
+                  figure=plot_hospital_hourly_violin(city, hospital, True, False, dark_mode))
     ])
 
     return layout
@@ -204,25 +207,38 @@ def get_violin_layout(city, hospital):
 
 # ------------------------------------------------------------------------
 
+
+@app.callback(Output('dark-mode-value', 'data'), [Input('dark-mode-switch', 'value')])
+def dark_mode_setting(dark_mode):
+    """CALLBACK: Updates the global value of dark mode based on changes in the switch.
+    TRIGGER: Upon page loading and toggling the dark mode switch.
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :return: (bool) Whether the plot is done in dark mode or not """
+    return dark_mode
+
+
+# ------------------------------------------------------------------------
+
 @app.callback(Output('page-content', 'children'),
-              [Input('url', 'pathname')])
-def display_page(pathname):
+              [Input('url', 'pathname'), Input('dark-mode-value', 'data')])
+def display_page(pathname, dark_mode):
     """CALLBACK: Updates the page content based on the URL.
     TRIGGER: Upon page loading and when the URL changes
     :param: pathname (str) The URL in the browser
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return: dash HTML layout based on the URL."""
 
     hospital_url = pathname.split('/')[-1]
     hospital_name = hospital_url.replace("_", " ")
 
     if pathname == '/':
-        return main_layout()
+        return main_layout(dark_mode)
     elif hospital_url in yyc_hospitals:
-        return get_violin_layout("Calgary", hospital_name)  # TODO: Need to get dark_mode in here
+        return get_violin_layout("Calgary", hospital_name, dark_mode)
     elif hospital_url in yeg_hospitals:
-        return get_violin_layout("Edmonton", hospital_name)
+        return get_violin_layout("Edmonton", hospital_name, dark_mode)
     else:
-        return main_layout()
+        return main_layout(dark_mode)
 
 
 # ------------------------------------------------------------------------
