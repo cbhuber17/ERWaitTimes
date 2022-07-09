@@ -10,8 +10,12 @@ import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate  # TODO: May need removing
 import dash_bootstrap_components as dbc
-from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY, TIME_STAMP_HEADER
+from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY, \
+    TIME_STAMP_HEADER
 from capture_er_wait_data import URL
+
+COLOR_MODE_DASH = {'font_color': ('black', 'white'),
+                   'bg_color': ('white', '#3a3f44')}
 
 app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times', update_title='Please wait...',
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -36,10 +40,10 @@ app.layout = html.Div([
 
 
 # ------------------------------------------------------------------------
-# TODO: Table dark mode callback for table
-def get_table_stats_container(df):
+def get_table_stats_container(df, dark_mode):
     """Provides a HTML container for centering a statistics table for each city dataframe.
     :param: df (pandas.df) City data frame read from csv file
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return dbc.Container containing the HTML code for displaying the table."""
 
     hospital_header = 'Hospital'
@@ -67,11 +71,16 @@ def get_table_stats_container(df):
     stats_table = html.Div(
         [
             dash_table.DataTable(data=df_stats.to_dict('records'),
+                                 style_header={
+                                     'fontWeight': 'bold',
+                                     'color': COLOR_MODE_DASH['font_color'][dark_mode]},
                                  style_cell={'textAlign': 'center',
                                              'height': 'auto',
                                              'padding-right': '10px',
                                              'padding-left': '10px',
                                              'whiteSpace': 'normal',
+                                             'backgroundColor': COLOR_MODE_DASH['bg_color'][dark_mode],
+                                             'color': COLOR_MODE_DASH['font_color'][dark_mode],
                                              },
                                  style_cell_conditional=[
                                      {'if': {'column_id': avg_header},
@@ -81,6 +90,7 @@ def get_table_stats_container(df):
                                  ],
                                  fill_width=False,
                                  style_table={'overflowX': 'auto'},
+                                 style_as_list_view=True,
                                  columns=[{"name": i, "id": i} for i in df_stats.columns]
                                  ),
         ],
@@ -142,11 +152,11 @@ def main_layout(dark_mode):
         html.Hr(),
         dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
         html.Hr(),
-        get_table_stats_container(df_yyc),
+        get_table_stats_container(df_yyc, dark_mode),
         html.Hr(),
         dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
         html.Hr(),
-        get_table_stats_container(df_yeg),
+        get_table_stats_container(df_yeg, dark_mode),
         html.Hr(),
         dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto',
                   figure=plot_subplots_hour_violin("Calgary", False)),
@@ -250,7 +260,7 @@ def update_source_link(dark_mode, screen_size):
     TRIGGER: Upon page loading and when selecting the toggle for dark mode
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :param: screen_size (dict) Dictionary of 'height' and 'width' the screen size
-    :return: A style dictionary of the color"""
+    :return: A style dictionary of the color and font size of the link"""
 
     mobile_small_length = 430
 
@@ -272,16 +282,13 @@ def update_source_link(dark_mode, screen_size):
 
 @app.callback(Output('main', 'style'), [Input('dark-mode-switch', 'value')])
 def update_layout(dark_mode):
-    """CALLBACK: Updates the histogram based on the radio-button detail-size selected.
+    """CALLBACK: Updates layout based on the dark mode toggle switch selected.
     TRIGGER: Upon page loading and when selecting the toggle for dark mode
     :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
-    :return: Global style layout as dark or light theme"""
+    :return: (dict) of styles to represent the main layout colors"""
 
-    color_mode = {'font_color': ('black', 'white'),
-                  'bg_color': ('white', '#3a3f44')}
-
-    return {'fontFamily': FONT_FAMILY, 'fontSize': 18, 'color': color_mode['font_color'][dark_mode],
-            'border': '4px solid skyblue', 'background-color': color_mode['bg_color'][dark_mode]}
+    return {'fontFamily': FONT_FAMILY, 'fontSize': 18, 'color': COLOR_MODE_DASH['font_color'][dark_mode],
+            'border': '4px solid skyblue', 'background-color': COLOR_MODE_DASH['bg_color'][dark_mode]}
 
 
 # ------------------------------------------------------------------------
