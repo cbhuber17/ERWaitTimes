@@ -9,10 +9,12 @@ import dash_daq as daq
 import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate  # TODO: May need removing
+import dash_bootstrap_components as dbc
 from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY
 from capture_er_wait_data import URL
 
-app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times', update_title='Please wait...')
+app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times', update_title='Please wait...',
+                external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
 
@@ -23,30 +25,82 @@ df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
 yyc_hospitals = [x.replace(" ", "_") for x in list(df_yyc.columns)]
 yeg_hospitals = [x.replace(" ", "_") for x in list(df_yeg.columns)]
 
-# TODO: Function for stats df
-yyc_stats = pd.DataFrame()
-stats = {'Hospital': [], 'Average Wait (hrs)': [], 'Standard Dev Wait (hrs)': []}
-for hospital in df_yyc.columns:
-    if hospital == 'time_stamp':
-        continue
-
-    stats['Hospital'].append(hospital)
-    stats['Average Wait (hrs)'].append(df_yyc[hospital].mean() / 60.0)
-    stats['Standard Dev Wait (hrs)'].append(df_yyc[hospital].std() / 60.0)
-
-yyc_stats['Hospital'] = stats['Hospital']
-yyc_stats['Average Wait (hrs)'] = stats['Average Wait (hrs)']
-yyc_stats['Standard Dev Wait (hrs)'] = stats['Standard Dev Wait (hrs)']
-
-yyc_stats = yyc_stats.dropna(axis=0)
-yyc_stats = yyc_stats.round(decimals=1)
-
 # ------------------------------------------------------------------------
 
 app.layout = html.Div([
     dcc.Location(id='url'), dcc.Store(id='viewport-container', data={}, storage_type='session'),
     html.Div(id='page-content')
 ])
+
+
+# ------------------------------------------------------------------------
+
+def get_table_stats_container(df):
+    """Provides a HTML container for centering a statistics table for each city dataframe.
+    :param: df (pandas.df) City data frame read from csv file
+    :return dbc.Container containing the HTML code for displaying the table."""
+
+    df_stats = pd.DataFrame()
+    stats = {'Hospital': [], 'Average Wait (hrs)': [], 'Standard Dev Wait (hrs)': []}
+    for hospital in df.columns:
+        if hospital == 'time_stamp':
+            continue
+
+        stats['Hospital'].append(hospital)
+        stats['Average Wait (hrs)'].append(df[hospital].mean() / 60.0)
+        stats['Standard Dev Wait (hrs)'].append(df[hospital].std() / 60.0)
+
+    df_stats['Hospital'] = stats['Hospital']
+    df_stats['Average Wait (hrs)'] = stats['Average Wait (hrs)']
+    df_stats['Standard Dev Wait (hrs)'] = stats['Standard Dev Wait (hrs)']
+
+    df_stats = df_stats.dropna(axis=0)
+    df_stats = df_stats.round(decimals=1)
+
+    stats_table = html.Div(
+        [
+            dash_table.DataTable(data=df_stats.to_dict('records'),
+                                 style_cell={'textAlign': 'center',
+                                             'height': 'auto',
+                                             'padding-right': '10px',
+                                             'padding-left': '10px',
+                                             'whiteSpace': 'normal',
+                                             },
+                                 style_cell_conditional=[
+                                     {'if': {'column_id': 'Average Wait (hrs)'},
+                                      'width': '150px'},
+                                     {'if': {'column_id': 'Standard Dev Wait (hrs)'},
+                                      'width': '150px'},
+                                 ],
+                                 fill_width=False,
+                                 style_table={'overflowX': 'auto'},
+                                 columns=[{"name": i, "id": i} for i in df_stats.columns]
+                                 ),
+        ], style={
+            'textAlign': 'center',
+            "margin-left": "auto",  # TODO: CSS
+            "margin-right": "auto",
+        }
+    )
+
+    container = dbc.Container([
+        dbc.Row(
+            [
+                dbc.Col(
+                    dcc.Markdown(""), xs=12, sm=12, md=3, lg=3, xl=3,
+                ),
+                dbc.Col(
+                    stats_table, xs=12, sm=12, md=6, lg=6, xl=6
+                ),
+                dbc.Col(
+                    dcc.Markdown(""), xs=12, sm=12, md=3, lg=3, xl=3,
+                )
+            ]
+        )
+
+    ])
+
+    return container
 
 
 # ------------------------------------------------------------------------
@@ -85,30 +139,11 @@ def main_layout():
         html.Hr(),
         dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
         html.Hr(),
-        # TODO: Table of stats
-        html.Div(
-            [
-                dash_table.DataTable(data=yyc_stats.to_dict('records'),
-                                     style_cell={'textAlign': 'center',
-                                                 'height': 'auto',
-                                                 # 'minWidth': '250px', 'width': '250px', 'maxWidth': '250px',
-                                                 'whiteSpace': 'normal',
-                                                 },
-                                     # style_header={'whiteSpace': 'normal'},
-                                     style_cell_conditional=[
-                                         {'if': {'column_id': 'Average Wait (hrs)'},
-                                          'width': '150px'},
-                                         {'if': {'column_id': 'Standard Dev Wait (hrs)'},
-                                          'width': '150px'},
-                                     ],
-                                     fill_width=False,
-                                     style_table={'overflowX': 'auto'},
-                                     columns=[{"name": i, "id": i} for i in yyc_stats.columns]
-                                     ),
-            ], className='center',
-        ),
+        get_table_stats_container(df_yyc),
         html.Hr(),
         dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
+        html.Hr(),
+        get_table_stats_container(df_yeg),
         html.Hr(),
         dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto',
                   figure=plot_subplots_hour_violin("Calgary", False)),
