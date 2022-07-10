@@ -9,8 +9,8 @@ import dash_daq as daq
 import pandas as pd
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY, \
-    TIME_STAMP_HEADER
+from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, filter_df,\
+    get_wait_data_hour_dict, FONT_FAMILY, TIME_STAMP_HEADER
 from capture_er_wait_data import URL
 
 COLOR_MODE_DASH = {'font_color': ('black', 'white'),
@@ -39,33 +39,14 @@ app.layout = html.Div([
 
 
 # ------------------------------------------------------------------------
-def get_table_stats_container(df, dark_mode):
-    """Provides an HTML container for centering a statistics table for each city dataframe.
-    :param: df (pandas.df) City data frame read from csv file
+
+def get_table_container(df_stats, dark_mode, avg_header, std_header):
+    """Provides an HTML container for centering a statistics table for each stats dataframe.
+    :param: df_stats (pandas.df) Stats data frame
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :param: avg_header (str) String containing the average header
+    :param: std_header (str) String containing the standard deviation header
     :return dbc.Container containing the HTML code for displaying the table."""
-
-    hospital_header = 'Hospital'
-    avg_header = 'Average Wait (hrs)'
-    std_header = 'Standard Dev Wait (hrs)'
-
-    df_stats = pd.DataFrame()
-    stats = {hospital_header: [], avg_header: [], std_header: []}
-
-    for hospital in df.columns:
-        if hospital == TIME_STAMP_HEADER:
-            continue
-
-        stats[hospital_header].append(hospital)
-        stats[avg_header].append(df[hospital].mean() / 60.0)
-        stats[std_header].append(df[hospital].std() / 60.0)
-
-    df_stats[hospital_header] = stats[hospital_header]
-    df_stats[avg_header] = stats[avg_header]
-    df_stats[std_header] = stats[std_header]
-
-    df_stats = df_stats.dropna(axis=0)
-    df_stats = df_stats.round(decimals=1)
 
     stats_table = html.Div(
         [
@@ -113,6 +94,39 @@ def get_table_stats_container(df, dark_mode):
     ])
 
     return container
+
+
+# ------------------------------------------------------------------------
+
+def get_table_stats_container(df, dark_mode):
+    """Provides an HTML container for centering a statistics table for each city dataframe.
+    :param: df (pandas.df) City data frame read from csv file
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :return dbc.Container containing the HTML code for displaying the table."""
+
+    hospital_header = 'Hospital'
+    avg_header = 'Average Wait (hrs)'
+    std_header = 'Standard Dev Wait (hrs)'
+
+    df_stats = pd.DataFrame()
+    stats = {hospital_header: [], avg_header: [], std_header: []}
+
+    for hospital in df.columns:
+        if hospital == TIME_STAMP_HEADER:
+            continue
+
+        stats[hospital_header].append(hospital)
+        stats[avg_header].append(df[hospital].mean() / 60.0)
+        stats[std_header].append(df[hospital].std() / 60.0)
+
+    df_stats[hospital_header] = stats[hospital_header]
+    df_stats[avg_header] = stats[avg_header]
+    df_stats[std_header] = stats[std_header]
+
+    df_stats = df_stats.dropna(axis=0)
+    df_stats = df_stats.round(decimals=1)
+
+    return get_table_container(df_stats, dark_mode, avg_header, std_header)
 
 
 # ------------------------------------------------------------------------
@@ -201,17 +215,43 @@ def main_layout(dark_mode):
 
 # ------------------------------------------------------------------------
 
-def get_violin_layout(city, hospital, dark_mode):
+def get_violin_layout(df, city, hospital, dark_mode):
     """Gets a single hospital violin plot to display on an entire page.
+    :param: df (pandas.DataFrame) a df of the city
     :param: city (str) City containing the hospital
     :param: hospital (str) Hospital to be plotted
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return: dash HTML layout of the violin plot of the hospital."""
 
+    df2 = filter_df(df)
+    df3, hour_dict = get_wait_data_hour_dict(df2, hospital)
+
+    hour_header = 'Hour'
+    avg_header = 'Average Wait (hrs)'
+    std_header = 'Standard Dev Wait (hrs)'
+
+    df_stats = pd.DataFrame()
+    stats = {hour_header: [], avg_header: [], std_header: []}
+
+    for hour in df3.columns:
+        stats[hour_header].append(hour_dict[hour])
+        stats[avg_header].append(df3[hour].mean())
+        stats[std_header].append(df3[hour].std())
+
+    df_stats[hour_header] = stats[hour_header]
+    df_stats[avg_header] = stats[avg_header]
+    df_stats[std_header] = stats[std_header]
+
+    df_stats = df_stats.round(decimals=1)
+
+    table_container = get_table_container(df_stats, dark_mode, avg_header, std_header)
+
     layout = html.Div([
         dcc.Graph(id=f'{city}-{hospital}', mathjax='cdn', responsive='auto',
-                  figure=plot_hospital_hourly_violin(city, hospital, True, False, dark_mode))
-    ])
+                  figure=plot_hospital_hourly_violin(city, hospital, True, False, dark_mode)),
+        html.Hr(),
+        table_container,
+    ], className='violin-page', style=update_layout(dark_mode))
 
     return layout
 
@@ -245,9 +285,9 @@ def display_page(pathname, dark_mode):
     if pathname == '/':
         return main_layout(dark_mode)
     elif hospital_url in yyc_hospitals:
-        return get_violin_layout("Calgary", hospital_name, dark_mode)
+        return get_violin_layout(df_yyc, "Calgary", hospital_name, dark_mode)
     elif hospital_url in yeg_hospitals:
-        return get_violin_layout("Edmonton", hospital_name, dark_mode)
+        return get_violin_layout(df_yeg, "Edmonton", hospital_name, dark_mode)
     else:
         return main_layout(dark_mode)
 

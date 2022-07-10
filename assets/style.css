@@ -33,6 +33,11 @@ h4 {
     text-align: center;
 }
 
+.col-xl-6 {
+    display: flex;
+    justify-content: center;
+}
+
 footer {
     text-align: center;
 }
