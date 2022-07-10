@@ -8,8 +8,6 @@ import numpy as np
 from scipy.optimize import curve_fit
 from capture_er_wait_data import DATE_TIME_FORMAT
 
-# TODO: 7-day average of line plot
-
 FONT_FAMILY = "Helvetica"
 HOURS_IN_DAY = 24
 HALF_DAY_HOURS = 12
@@ -30,11 +28,12 @@ COLOR_MODE = {'title': ('black', 'white'),
 
 # -------------------------------------------------------------------------------------------------
 
-def plot_line(city, plot_offline=True, dark_mode=True):
+def plot_line(city, plot_offline=True, dark_mode=True, rolling_avg=1):
     """Plots the line plot of the ER wait times.
     :param: city (str) City to be plotted
     :param: plot_offline (bool) If an offline plot is to be generated (default: True)
     :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
+    :param: rolling_avg (int) Number of hours to do rolling average on each hospital (default=1)
     :return: (go.Figure) object"""
 
     html_file = city + "_er_wait_times.html"
@@ -59,6 +58,7 @@ def plot_line(city, plot_offline=True, dark_mode=True):
 
         df2[hospital] = df2[hospital].astype("float64")
         df2[hospital] /= 60.0
+        df2[hospital] = df2[hospital].rolling(rolling_avg).mean()
 
     traces = [go.Scatter(
         x=df2[TIME_STAMP_HEADER],
@@ -594,12 +594,12 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
 # -------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # plot_line("Calgary")
+    plot_line("Calgary")
     # plot_line("Edmonton")
 
     # plot_hospital_hourly_violin("Calgary", "South Health Campus")
     # plot_hospital_hourly_violin("Calgary", "Alberta Children's Hospital")
-    plot_hospital_hourly_violin("Calgary", "Foothills Medical Centre")
+    # plot_hospital_hourly_violin("Calgary", "Foothills Medical Centre")
     # plot_hospital_hourly_violin("Calgary", "Peter Lougheed Centre")
     # plot_hospital_hourly_violin("Calgary", "Rockyview General Hospital")
     # plot_hospital_hourly_violin("Calgary", "Sheldon M. Chumir Centre")
@@ -608,5 +608,5 @@ if __name__ == "__main__":
     # plot_all_hospitals_violin("Calgary")
     # plot_all_hospitals_violin("Edmonton")
 
-    plot_subplots_hour_violin("Calgary")
-    plot_subplots_hour_violin("Edmonton")
+    # plot_subplots_hour_violin("Calgary")
+    # plot_subplots_hour_violin("Edmonton")
