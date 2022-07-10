@@ -20,8 +20,8 @@
     margin-bottom: 20px;
 }
 
-#switch-id {
-    font-size: 20px;
+#page-settings {
+    text-align: center;
 }
 
 h1 {
@@ -42,12 +42,10 @@ footer {
 }
 
 #footer-contact {
-
     text-decoration: underline;
     color: skyblue;
     font-size: 30px;
     margin-bottom: 10px;
-
 }
 
 #li-img {

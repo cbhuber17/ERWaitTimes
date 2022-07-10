@@ -86,6 +86,7 @@ def plot_line(city, plot_offline=True, dark_mode=True, rolling_avg=1):
         plot_bgcolor=COLOR_MODE['plot_bgcolor'][dark_mode],
         yaxis={'range': Y_AXIS_RANGE},
         spikedistance=1000,
+        uirevision='dataset',  # Preserve legend state when changing rolling filter average or dark mode
         hoverdistance=100,
         hoverlabel=dict(
             font=dict(

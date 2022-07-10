@@ -8,7 +8,6 @@ from dash import dash_table
 import dash_daq as daq
 import pandas as pd
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate  # TODO: May need removing
 import dash_bootstrap_components as dbc
 from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, FONT_FAMILY, \
     TIME_STAMP_HEADER
@@ -41,7 +40,7 @@ app.layout = html.Div([
 
 # ------------------------------------------------------------------------
 def get_table_stats_container(df, dark_mode):
-    """Provides a HTML container for centering a statistics table for each city dataframe.
+    """Provides an HTML container for centering a statistics table for each city dataframe.
     :param: df (pandas.df) City data frame read from csv file
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return dbc.Container containing the HTML code for displaying the table."""
@@ -146,8 +145,10 @@ def main_layout(dark_mode):
                                  label={'label': 'View Page in Dark Mode:', 'style': {'font-size': '20px'}},
                                  value=dark_mode,
                                  size=50,
-                                 color='orange')
-            ]
+                                 color='orange'),
+                "Enter in number of hours for rolling average of line plots (1-48): ",
+                dcc.Input(id='rolling-avg-hrs', type='number', value=1, min=1, max=48, step=1)
+            ], id='page-settings'
         ),
         html.Hr(),
         dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
@@ -293,15 +294,17 @@ def update_layout(dark_mode):
 
 # ------------------------------------------------------------------------
 
-@app.callback([Output('line-yyc', 'figure'), Output('line-yeg', 'figure')], [Input('dark-mode-switch', 'value')])
-def update_line(dark_mode):
+@app.callback([Output('line-yyc', 'figure'), Output('line-yeg', 'figure')], [Input('dark-mode-switch', 'value'),
+                                                                             Input('rolling-avg-hrs', 'value')])
+def update_line(dark_mode, rolling_avg):
     """CALLBACK: Updates the line charts based on the dark mode selected.
     TRIGGER: Upon page load or toggling the dark mode switch.
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :param: rolling_avg (int) Number of hours to do rolling average on each hospital
     :return: (go.Figure), (go.Figure) objects that will be dynamically updated"""
 
-    fig_yyc = plot_line("Calgary", False, dark_mode)
-    fig_yeg = plot_line("Edmonton", False, dark_mode)
+    fig_yyc = plot_line("Calgary", False, dark_mode, rolling_avg)
+    fig_yeg = plot_line("Edmonton", False, dark_mode, rolling_avg)
 
     fig_yyc.update_layout(transition_duration=500)
     fig_yeg.update_layout(transition_duration=500)
