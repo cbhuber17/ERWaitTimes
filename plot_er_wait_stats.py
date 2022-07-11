@@ -289,13 +289,15 @@ def get_violin_layout(title_text, x_axis_label, dark_mode):
 # -------------------------------------------------------------------------------------------------
 
 
-def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline=True, dark_mode=True):
+def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline=True, dark_mode=True,
+                                y_arrow_vector=-500):
     """Plots as violin data for each hour of the ER wait times.
     :param: city (str) City to be plotted
     :param: hospital (str) Hospital in city to be plotted
     :param: plot_best_fit (bool) If a best-fit curve is to be generated (default: True)
     :param: plot_offline (bool) If an offline plot is to be generated (default: True)
     :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
+    :param: y_arrow_vector (int) Responsive distance of the y-arrow vector curve-fit annotation (default=-500)
     :return: (go.Figure) object"""
 
     html_file = city + '_' + hospital + "_violin.html"
@@ -354,7 +356,6 @@ def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline
         arrowwidth = 2
         arrowcolor = "red"
         x_arrow_vector = 50
-        y_arrow_vector = -500  # TODO: This needs to be responsive
 
         # Annotation variables
         x_annotation_point = 13.5

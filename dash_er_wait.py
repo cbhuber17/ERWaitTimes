@@ -215,12 +215,13 @@ def main_layout(dark_mode):
 
 # ------------------------------------------------------------------------
 
-def get_violin_layout(df, city, hospital, dark_mode):
+def get_violin_layout(df, city, hospital, dark_mode, y_arrow_vector):
     """Gets a single hospital violin plot to display on an entire page.
     :param: df (pandas.DataFrame) a df of the city
     :param: city (str) City containing the hospital
     :param: hospital (str) Hospital to be plotted
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :param: y_arrow_vector (int) Responsive distance of the y-arrow vector curve-fit annotation
     :return: dash HTML layout of the violin plot of the hospital."""
 
     df2 = filter_df(df)
@@ -248,7 +249,7 @@ def get_violin_layout(df, city, hospital, dark_mode):
 
     layout = html.Div([
         dcc.Graph(id=f'{city}-{hospital}', mathjax='cdn', responsive='auto',
-                  figure=plot_hospital_hourly_violin(city, hospital, True, False, dark_mode)),
+                  figure=plot_hospital_hourly_violin(city, hospital, True, False, dark_mode, y_arrow_vector)),
         html.Hr(),
         table_container,
     ], className='violin-page', style=update_layout(dark_mode))
@@ -271,13 +272,19 @@ def dark_mode_setting(dark_mode):
 # ------------------------------------------------------------------------
 
 @app.callback(Output('page-content', 'children'),
-              [Input('url', 'pathname'), Input('dark-mode-value', 'data')])
-def display_page(pathname, dark_mode):
+              [Input('url', 'pathname'), Input('dark-mode-value', 'data'), Input('viewport-container', 'data')])
+def display_page(pathname, dark_mode, screen_size):
     """CALLBACK: Updates the page content based on the URL.
     TRIGGER: Upon page loading and when the URL changes
     :param: pathname (str) The URL in the browser
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return: dash HTML layout based on the URL."""
+
+    mobile_small_height = 430
+    y_arrow_vector = -500
+
+    if screen_size['height'] < mobile_small_height:  # Landscape orientation
+        y_arrow_vector = -150
 
     hospital_url = pathname.split('/')[-1]
     hospital_name = hospital_url.replace("_", " ")
@@ -285,9 +292,9 @@ def display_page(pathname, dark_mode):
     if pathname == '/':
         return main_layout(dark_mode)
     elif hospital_url in yyc_hospitals:
-        return get_violin_layout(df_yyc, "Calgary", hospital_name, dark_mode)
+        return get_violin_layout(df_yyc, "Calgary", hospital_name, dark_mode, y_arrow_vector)
     elif hospital_url in yeg_hospitals:
-        return get_violin_layout(df_yeg, "Edmonton", hospital_name, dark_mode)
+        return get_violin_layout(df_yeg, "Edmonton", hospital_name, dark_mode, y_arrow_vector)
     else:
         return main_layout(dark_mode)
 
