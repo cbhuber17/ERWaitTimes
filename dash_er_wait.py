@@ -11,17 +11,17 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, filter_df,\
     get_wait_data_hour_dict, FONT_FAMILY, TIME_STAMP_HEADER
-from capture_er_wait_data import URL
+from capture_er_wait_data import URL, MINUTES_PER_HOUR
 
 COLOR_MODE_DASH = {'font_color': ('black', 'white'),
-                   'bg_color': ('white', '#3a3f44')}
+                   'bg_color': ('#ffffd0', '#3a3f44')}
 
 app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times', update_title='Please wait...',
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config.suppress_callback_exceptions = True  # Dynamic layout
 server = app.server
 
-# TODO: Live updating and adding to CSV/mongo
+# TODO: Add to mongo online
 df_yyc = pd.read_csv('Calgary_hospital_stats.csv')
 df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
 
@@ -116,8 +116,8 @@ def get_table_stats_container(df, dark_mode):
             continue
 
         stats[hospital_header].append(hospital)
-        stats[avg_header].append(df[hospital].mean() / 60.0)
-        stats[std_header].append(df[hospital].std() / 60.0)
+        stats[avg_header].append(df[hospital].mean() / MINUTES_PER_HOUR)
+        stats[std_header].append(df[hospital].std() / MINUTES_PER_HOUR)
 
     df_stats[hospital_header] = stats[hospital_header]
     df_stats[avg_header] = stats[avg_header]
