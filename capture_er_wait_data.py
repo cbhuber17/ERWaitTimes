@@ -5,6 +5,7 @@ import datetime
 import threading
 import os
 import csv
+from pymongo import MongoClient
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -13,9 +14,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 POLLING_INTERVAL = 3600  # seconds
 DATE_TIME_FORMAT = "%a %b %d %Y - %H:%M:%S"
+MINUTES_PER_HOUR = 60
 
 # ER Wait times URL for alberta
 URL = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
+
+MONGO_CLIENT_URL = 'mongodb://127.0.0.1:27017'
+DB_NAME = 'erWaitTimesDB'
 
 
 class ErWait:
@@ -78,14 +83,15 @@ class ErWait:
 
         # Capture hospital names
         for hospital in city_hospitals_div:
-            hospitals.append(hospital.find("a").contents[0])
-
+            # Mongo restrictions https://www.mongodb.com/docs/manual/reference/limits/#Restrictions-on-Field-Names
+            # No dots (.) in field names (column names)
+            hospitals.append(hospital.find("a").contents[0].replace('.', '*'))
         return hospitals
 
     # -------------------------------------------------------------------------------------------------
 
     def _get_wait_times(self, doc):
-        """Returns a list of wait times for each hospital.
+        """Returns a list of wait times (in minutes) for each hospital.
         :param: doc (str) The HTML source of the page
         :return: A list of wait times (in minutes)"""
 
@@ -94,14 +100,15 @@ class ErWait:
 
         wait_times_div = div_city.find_all(class_="wt-times")
 
-        # Capture wait times for each hospital
+        # Capture wait times for each hospital (in minutes to keep it simple)
         for wait_time in wait_times_div:
 
             wait_time_strong_tags = wait_time.find_all("strong")
+
             if len(wait_time_strong_tags) == 2:
                 hours_wait = int(wait_time_strong_tags[0].string)
                 minutes_wait = int(wait_time_strong_tags[1].string)
-                wait_times.append(hours_wait * 60 + minutes_wait)
+                wait_times.append(hours_wait * MINUTES_PER_HOUR + minutes_wait)
             else:
                 wait_times.append(None)
 
@@ -146,6 +153,24 @@ class ErWait:
 
     # -------------------------------------------------------------------------------------------------
 
+    def _write_db(self, data):
+        """Writes data to mongo db.
+        :param: data (dict) Data to be written to db.
+        :return: None"""
+
+        try:
+            db_client = MongoClient(MONGO_CLIENT_URL)
+            db = db_client[DB_NAME]
+            city_collection = db[self.city]
+            city_collection.insert_one(data)
+            db_client.close()
+
+        except Exception as e:
+            print(f"Exception happened in write_db() for {self.city} writing data {data}.")
+            print(e)
+
+    # -------------------------------------------------------------------------------------------------
+
     def capture_data(self):
         """Runs forever capturing ER wait time data for the particular city.  Ideally to be run as a separate thread
         process.
@@ -181,6 +206,9 @@ class ErWait:
 
             # Output to csv file
             self._write_csv(wait_data)
+
+            # Output to db
+            self._write_db(wait_data)
 
             # Wait to poll again
             print(f"Thread: {threading.current_thread().name} and OS PID: {os.getpid()}.")
