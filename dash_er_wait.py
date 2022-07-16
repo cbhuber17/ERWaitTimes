@@ -9,8 +9,8 @@ import dash_daq as daq
 import pandas as pd
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-from plot_er_wait_stats import plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, filter_df,\
-    get_wait_data_hour_dict, FONT_FAMILY, TIME_STAMP_HEADER
+from plot_er_wait_stats import get_mongodb_df, plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin,\
+    filter_df, get_wait_data_hour_dict, FONT_FAMILY, TIME_STAMP_HEADER
 from capture_er_wait_data import URL, MINUTES_PER_HOUR
 
 COLOR_MODE_DASH = {'font_color': ('black', 'white'),
@@ -22,8 +22,12 @@ app.config.suppress_callback_exceptions = True  # Dynamic layout
 server = app.server
 
 # TODO: Add to mongo online
-df_yyc = pd.read_csv('Calgary_hospital_stats.csv')
-df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
+# TODO: Sheldon M. Chumir not working violin
+# df_yyc = pd.read_csv('Calgary_hospital_stats.csv')
+# df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
+
+df_yyc = get_mongodb_df("Calgary")
+df_yeg = get_mongodb_df("Edmonton")
 
 yyc_hospitals = [x.replace(" ", "_") for x in list(df_yyc.columns)]
 yeg_hospitals = [x.replace(" ", "_") for x in list(df_yeg.columns)]
@@ -100,7 +104,7 @@ def get_table_container(df_stats, dark_mode, avg_header, std_header):
 
 def get_table_stats_container(df, dark_mode):
     """Provides an HTML container for centering a statistics table for each city dataframe.
-    :param: df (pandas.df) City data frame read from csv file
+    :param: df (pandas.df) City data frame read from data
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :return dbc.Container containing the HTML code for displaying the table."""
 

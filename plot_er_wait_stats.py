@@ -6,6 +6,7 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 from pymongo import MongoClient
+from send_sms import sms_exception_message
 from scipy.optimize import curve_fit
 from capture_er_wait_data import DATE_TIME_FORMAT, MINUTES_PER_HOUR, DB_NAME, MONGO_CLIENT_URL
 
@@ -50,8 +51,8 @@ def get_mongodb_df(city):
         return df
 
     except Exception as e:
-        print(f"Exception happened in get_mongodb_df() for {city}.")
-        print(e)
+        msg = f"Exception happened in get_mongodb_df() for {city}."
+        sms_exception_message(msg, e)
 
 
 # -------------------------------------------------------------------------------------------------

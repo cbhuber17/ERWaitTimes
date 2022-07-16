@@ -5,6 +5,7 @@ import datetime
 import threading
 import os
 import csv
+from send_sms import sms_exception_message
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -19,7 +20,7 @@ MINUTES_PER_HOUR = 60
 # ER Wait times URL for alberta
 URL = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
 
-MONGO_CLIENT_URL = 'mongodb://127.0.0.1:27017'
+MONGO_CLIENT_URL = os.environ["MONGO_DB_URL"]
 DB_NAME = 'erWaitTimesDB'
 
 
@@ -166,8 +167,8 @@ class ErWait:
             db_client.close()
 
         except Exception as e:
-            print(f"Exception happened in write_db() for {self.city} writing data {data}.")
-            print(e)
+            msg = f"Exception happened in _write_db() for {self.city} writing data {data}."
+            sms_exception_message(msg, e)
 
     # -------------------------------------------------------------------------------------------------
 
@@ -190,8 +191,8 @@ class ErWait:
 
             # If an exception happens, just skip it for this iteration and continue
             except Exception as e:
-                print(e)
-                print(f"Exception happened in {self.city}.  Waiting {POLLING_INTERVAL} to try again.")
+                msg = f"Exception happened in {self.city} capture_data().  Waiting {POLLING_INTERVAL} to try again."
+                sms_exception_message(msg, e)
                 time.sleep(POLLING_INTERVAL)
                 continue
 
@@ -208,6 +209,7 @@ class ErWait:
             self._write_csv(wait_data)
 
             # Output to db
+            # TODO: Comment out in production
             self._write_db(wait_data)
 
             # Wait to poll again

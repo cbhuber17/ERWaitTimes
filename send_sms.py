@@ -21,9 +21,22 @@ def send_sms(body):
             to=os.environ['MY_PHONE_NUM']
         )
 
-        print(message)
         return message.sid
 
     except Exception as e:
         print(f"Exception happened in send_sms() attempting to send: {body}.")
         print(e)
+
+
+# -------------------------------------------------------------------------------------------------
+
+def sms_exception_message(msg, e):
+    """Prints the exception to the screen and sends the message/exception details by SMS.
+    :param: msg (str) A high-level description of the exception.
+    :param: e (Exception) The trace stack error message.
+    :return: None"""
+
+    print(msg)
+    print(e)
+    print(send_sms(msg))
+    print(send_sms(str(e)))
