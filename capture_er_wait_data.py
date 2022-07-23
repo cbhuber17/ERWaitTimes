@@ -5,6 +5,7 @@ import datetime
 import threading
 import os
 import csv
+import certifi
 from send_sms import sms_exception_message
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
@@ -160,7 +161,7 @@ class ErWait:
         :return: None"""
 
         try:
-            db_client = MongoClient(MONGO_CLIENT_URL)
+            db_client = MongoClient(MONGO_CLIENT_URL, tlsCAFile=certifi.where())
             db = db_client[DB_NAME]
             city_collection = db[self.city]
             city_collection.insert_one(data)
