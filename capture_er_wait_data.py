@@ -207,10 +207,10 @@ class ErWait:
             wait_data, now = self._zip_data_and_current_time(hospitals, wait_times)
 
             # Output to csv file
+            # TODO: Comment out in production
             self._write_csv(wait_data)
 
             # Output to db
-            # TODO: Comment out in production
             self._write_db(wait_data)
 
             # Wait to poll again
