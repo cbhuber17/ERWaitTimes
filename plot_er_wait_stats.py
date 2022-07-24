@@ -1,5 +1,7 @@
 """Contains routines/functions for plotting the ER wait time data."""
 
+import datetime
+import certifi
 import plotly.offline as pyo
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
@@ -36,7 +38,7 @@ def get_mongodb_df(city):
     :return: (pandas.df) DataFrame if successful, None otherwise"""
 
     try:
-        db_client = MongoClient(MONGO_CLIENT_URL)
+        db_client = MongoClient(MONGO_CLIENT_URL, tlsCAFile=certifi.where())
         db = db_client[DB_NAME]
         collection = db[city]
         df = pd.DataFrame(list(collection.find()))
@@ -74,9 +76,11 @@ def check_hospital_name(df, hospital):
 
 # -------------------------------------------------------------------------------------------------
 
-def plot_line(city, plot_offline=True, dark_mode=True, rolling_avg=1):
+def plot_line(city, min_date, max_date, plot_offline=True, dark_mode=True, rolling_avg=1):
     """Plots the line plot of the ER wait times.
     :param: city (str) City to be plotted
+    :param: min_date (datetime) Minimum date of the x-axis of the plot
+    :param: max_date (datetime) Max date of the x-axis of the plot
     :param: plot_offline (bool) If an offline plot is to be generated (default: True)
     :param: dark_mode (bool) If dark mode plotting is done (True), light mode plotting (False)
     :param: rolling_avg (int) Number of hours to do rolling average on each hospital (default=1)
@@ -86,15 +90,15 @@ def plot_line(city, plot_offline=True, dark_mode=True, rolling_avg=1):
 
     df = get_mongodb_df(city)
 
+    if df is None:
+        return None
+
     # Remove any N/A for now, out of town hospitals don't report their data
     df2 = df.copy()
     df2 = df2.dropna(axis=1, how='all')
 
     # Convert all string to datetime objects
     df2.loc[:, TIME_STAMP_HEADER] = pd.to_datetime(df2[TIME_STAMP_HEADER], format=DATE_TIME_FORMAT)
-
-    min_date = min(df2[TIME_STAMP_HEADER].dt.date)
-    max_date = max(df2[TIME_STAMP_HEADER].dt.date)
 
     # Convert to hours for better readability
     for hospital in df2.columns:
@@ -149,6 +153,7 @@ def plot_line(city, plot_offline=True, dark_mode=True, rolling_avg=1):
     fig.update_xaxes(showgrid=False, gridwidth=5, gridcolor='White', showspikes=True,
                      spikecolor=COLOR_MODE['spikecolor'][dark_mode], spikesnap="cursor", spikemode="across",
                      spikethickness=2,
+                     range=list([min_date, max_date]),
                      rangeselector=dict(
                          bgcolor=COLOR_MODE['range_bgcolor'][dark_mode],
                          bordercolor=COLOR_MODE['range_border_color'][dark_mode],
@@ -352,6 +357,9 @@ def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline
 
     df = get_mongodb_df(city)
 
+    if df is None:
+        return None
+
     hospital = check_hospital_name(df, hospital)
 
     html_file = city + '_' + hospital + "_violin.html"
@@ -444,6 +452,9 @@ def plot_all_hospitals_violin(city, plot_offline=True, dark_mode=True):
 
     # Capture data
     df = get_mongodb_df(city)
+
+    if df is None:
+        return None
 
     # Filter
     df = filter_df(df)
@@ -577,6 +588,9 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
 
     df = get_mongodb_df(city)
 
+    if df is None:
+        return None
+
     # Filter data
     df2 = filter_df(df)
 
@@ -655,8 +669,9 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
 # -------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # plot_line("Calgary")
-    # plot_line("Edmonton")
+
+    # plot_line("Calgary", "2022-05-31", "2022-07-24")
+    # plot_line("Edmonton", "2022-07-01", "2022-07-24")
 
     # plot_hospital_hourly_violin("Calgary", "South Health Campus")
     # plot_hospital_hourly_violin("Calgary", "Alberta Children's Hospital")

@@ -1,17 +1,19 @@
 """The main app to run the dash server to display the results of the ER wait times in Alberta with interactive
 features."""
 
+import datetime
 import dash
 from dash import dcc
 from dash import html
 from dash import dash_table
 import dash_daq as daq
+from dash.exceptions import PreventUpdate
 import pandas as pd
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-from plot_er_wait_stats import get_mongodb_df, plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin,\
+from plot_er_wait_stats import get_mongodb_df, plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, \
     filter_df, get_wait_data_hour_dict, FONT_FAMILY, TIME_STAMP_HEADER
-from capture_er_wait_data import URL, MINUTES_PER_HOUR
+from capture_er_wait_data import URL, MINUTES_PER_HOUR, DATE_TIME_FORMAT
 
 COLOR_MODE_DASH = {'font_color': ('black', 'white'),
                    'bg_color': ('#ffffd0', '#3a3f44')}
@@ -21,7 +23,6 @@ app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times',
 app.config.suppress_callback_exceptions = True  # Dynamic layout
 server = app.server
 
-# TODO: Add to mongo online
 # TODO: Sheldon M. Chumir not working violin
 # df_yyc = pd.read_csv('Calgary_hospital_stats.csv')
 # df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
@@ -43,6 +44,28 @@ app.layout = html.Div([
 
 
 # ------------------------------------------------------------------------
+
+def get_max_date(df):
+    """Returns the max date in the provided df.
+    :param: df (pd.DataFrame) A dataframe containing hospital data for a particular city
+    :return: (datetime.date) Max date of the df."""
+
+    # Remove any N/A for now, out of town hospitals don't report their data
+    df2 = df.copy()
+    df2 = df2.dropna(axis=1, how='all')
+
+    # Convert all string to datetime objects
+    df2.loc[:, TIME_STAMP_HEADER] = pd.to_datetime(df2[TIME_STAMP_HEADER], format=DATE_TIME_FORMAT)
+
+    return max(df2[TIME_STAMP_HEADER].dt.date)
+
+
+# ------------------------------------------------------------------------
+
+
+max_date_yyc = get_max_date(df_yyc)
+max_date_yeg = get_max_date(df_yeg)
+
 
 def get_table_container(df_stats, dark_mode, avg_header, std_header):
     """Provides an HTML container for centering a statistics table for each stats dataframe.
@@ -169,11 +192,23 @@ def main_layout(dark_mode):
             ], id='page-settings'
         ),
         html.Hr(),
-        dcc.Graph(id="line-yyc", mathjax='cdn', responsive='auto', figure=plot_line("Calgary", False)),
+        dcc.Graph(id="line-yyc",
+                  mathjax='cdn',
+                  responsive='auto',
+                  figure=plot_line("Calgary",
+                                   max_date_yyc - datetime.timedelta(days=14),
+                                   max_date_yyc,
+                                   False)),
         html.Hr(),
         get_table_stats_container(df_yyc, dark_mode),
         html.Hr(),
-        dcc.Graph(id="line-yeg", mathjax='cdn', responsive='auto', figure=plot_line("Edmonton", False)),
+        dcc.Graph(id="line-yeg",
+                  mathjax='cdn',
+                  responsive='auto',
+                  figure=plot_line("Edmonton",
+                                   max_date_yeg - datetime.timedelta(days=14),
+                                   max_date_yeg,
+                                   False)),
         html.Hr(),
         get_table_stats_container(df_yeg, dark_mode),
         html.Hr(),
@@ -229,6 +264,10 @@ def get_violin_layout(df, city, hospital, dark_mode, y_arrow_vector):
     :return: dash HTML layout of the violin plot of the hospital."""
 
     df2 = filter_df(df)
+
+    if df2 is None:
+        raise PreventUpdate
+
     df3, hour_dict = get_wait_data_hour_dict(df2, hospital)
 
     hour_header = 'Hour'
@@ -345,22 +384,119 @@ def update_layout(dark_mode):
 
 # ------------------------------------------------------------------------
 
-@app.callback([Output('line-yyc', 'figure'), Output('line-yeg', 'figure')], [Input('dark-mode-switch', 'value'),
-                                                                             Input('rolling-avg-hrs', 'value')])
-def update_line(dark_mode, rolling_avg):
+def get_min_max_date(relayout_data, df):
+    """Returns the min and max dates from a df or the relayout data (based on x-axis selection or zoom)
+    :param: relayout_data (dict) Data of the current x-axis relay.
+    :param: df (pd.DataFrame) Dataframe of a particular city.
+    :return: (str) The min and max dates."""
+
+    date_format = '%Y-%m-%d'
+    date_time_format1 = '%Y-%m-%dT%H:%M:%S'
+    date_time_format2 = '%Y-%m-%d %H:%M:%S.%f'
+    date_time_format3 = '%Y-%m-%dT%H:%M:%S.%f'
+    date_time_format4 = '%Y-%m-%d %H:%M:%S'
+
+    if relayout_data is None or 'autosize' in relayout_data:
+        min_date_local = max_date_yyc - datetime.timedelta(days=14)  # Default show past 2 weeks
+        max_date_local = max_date_yyc
+    elif 'xaxis.autorange' in relayout_data:
+        df2 = df.copy()
+        df2 = df2.dropna(axis=1, how='all')
+
+        # Convert all string to datetime objects
+        df2.loc[:, TIME_STAMP_HEADER] = pd.to_datetime(df2[TIME_STAMP_HEADER], format=DATE_TIME_FORMAT)
+
+        min_date_local = min(df2[TIME_STAMP_HEADER].dt.date)
+        max_date_local = max(df2[TIME_STAMP_HEADER].dt.date)
+
+    else:
+        print(relayout_data)
+        if 'xaxis.range[0]' in relayout_data and 'xaxis.range[1]' in relayout_data:
+
+            if 'T' in relayout_data['xaxis.range[0]'] and '.' in relayout_data['xaxis.range[0]']:
+                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format3)
+            elif ' ' in relayout_data['xaxis.range[0]'] and '.' not in relayout_data['xaxis.range[0]']:
+                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format4)
+            elif 'T' in relayout_data['xaxis.range[0]']:
+                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format1)
+            elif '.' in relayout_data['xaxis.range[0]']:
+                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format2)
+            else:
+                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_format)
+
+            if 'T' in relayout_data['xaxis.range[1]'] and '.' in relayout_data['xaxis.range[1]']:
+                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format3)
+            elif ' ' in relayout_data['xaxis.range[1]'] and '.' not in relayout_data['xaxis.range[1]']:
+                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format4)
+            elif 'T' in relayout_data['xaxis.range[1]']:
+                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format1)
+            elif '.' in relayout_data['xaxis.range[1]']:
+                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format2)
+            else:
+                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_format)
+
+        elif 'xaxis.range' in relayout_data:
+            if 'T' in relayout_data['xaxis.range'][0]:
+                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][0], date_time_format1)
+            else:
+                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][0], date_format)
+
+            if 'T' in relayout_data['xaxis.range'][1]:
+                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][1], date_time_format1)
+            else:
+                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][1], date_format)
+        else:
+            print(relayout_data)
+
+    return min_date_local, max_date_local
+
+
+# ------------------------------------------------------------------------
+
+@app.callback(Output('line-yyc', 'figure'), [Input('dark-mode-switch', 'value'),
+                                               Input('rolling-avg-hrs', 'value'),
+                                               Input('line-yyc', 'relayoutData')])
+def update_line_yyc(dark_mode, rolling_avg, relayout_data_yyc):
     """CALLBACK: Updates the line charts based on the dark mode selected.
-    TRIGGER: Upon page load or toggling the dark mode switch.
+    TRIGGER: Upon page load, toggling the dark mode switch, or changing x-axis timeline by button or zoom.
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :param: rolling_avg (int) Number of hours to do rolling average on each hospital
     :return: (go.Figure), (go.Figure) objects that will be dynamically updated"""
 
-    fig_yyc = plot_line("Calgary", False, dark_mode, rolling_avg)
-    fig_yeg = plot_line("Edmonton", False, dark_mode, rolling_avg)
+    min_date_yyc_local, max_date_yyc_local = get_min_max_date(relayout_data_yyc, df_yyc)
+
+    fig_yyc = plot_line("Calgary", min_date_yyc_local, max_date_yyc_local, False, dark_mode, rolling_avg)
+
+    if fig_yyc is None:
+        raise PreventUpdate
 
     fig_yyc.update_layout(transition_duration=500)
+
+    return fig_yyc
+
+
+# ------------------------------------------------------------------------
+
+@app.callback(Output('line-yeg', 'figure'), [Input('dark-mode-switch', 'value'),
+                                               Input('rolling-avg-hrs', 'value'),
+                                               Input('line-yeg', 'relayoutData')])
+def update_line_yeg(dark_mode, rolling_avg, relayout_data_yeg):
+    """CALLBACK: Updates the line charts based on the dark mode selected.
+    TRIGGER: Upon page load, toggling the dark mode switch, or changing x-axis timeline by button or zoom.
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :param: rolling_avg (int) Number of hours to do rolling average on each hospital
+    :return: (go.Figure), (go.Figure) objects that will be dynamically updated"""
+
+    min_date_yeg_local, max_date_yeg_local = get_min_max_date(relayout_data_yeg, df_yeg)
+
+    fig_yeg = plot_line("Edmonton", min_date_yeg_local, max_date_yeg_local, False, dark_mode, rolling_avg)
+
+    if fig_yeg is None:
+        raise PreventUpdate
+
     fig_yeg.update_layout(transition_duration=500)
 
-    return fig_yyc, fig_yeg
+    return fig_yeg
 
 
 # ------------------------------------------------------------------------
@@ -373,6 +509,9 @@ def update_violin(dark_mode):
     :return: (go.Figure) x 2 for Calgary and Edmonton."""
     fig_yyc = plot_subplots_hour_violin("Calgary", False, dark_mode)
     fig_yeg = plot_subplots_hour_violin("Edmonton", False, dark_mode)
+
+    if fig_yyc is None or fig_yeg is None:
+        raise PreventUpdate
 
     fig_yyc.update_layout(transition_duration=500)
     fig_yeg.update_layout(transition_duration=500)
