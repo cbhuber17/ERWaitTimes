@@ -330,6 +330,7 @@ def display_page(pathname, dark_mode, screen_size):
         y_arrow_vector = -150
 
     hospital_url = pathname.split('/')[-1]
+    hospital_url = hospital_url.replace('.', '*')
     hospital_name = hospital_url.replace("_", " ")
 
     if pathname == '/':
