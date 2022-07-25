@@ -23,7 +23,6 @@ app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times',
 app.config.suppress_callback_exceptions = True  # Dynamic layout
 server = app.server
 
-# TODO: Sheldon M. Chumir not working violin
 # df_yyc = pd.read_csv('Calgary_hospital_stats.csv')
 # df_yeg = pd.read_csv('Edmonton_hospital_stats.csv')
 
@@ -321,6 +320,7 @@ def display_page(pathname, dark_mode, screen_size):
     TRIGGER: Upon page loading and when the URL changes
     :param: pathname (str) The URL in the browser
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :param: screen_size (dict) Dictionary of 'height' and 'width' the screen size
     :return: dash HTML layout based on the URL."""
 
     mobile_small_height = 430
@@ -455,13 +455,14 @@ def get_min_max_date(relayout_data, df):
 # ------------------------------------------------------------------------
 
 @app.callback(Output('line-yyc', 'figure'), [Input('dark-mode-switch', 'value'),
-                                               Input('rolling-avg-hrs', 'value'),
-                                               Input('line-yyc', 'relayoutData')])
+                                             Input('rolling-avg-hrs', 'value'),
+                                             Input('line-yyc', 'relayoutData')])
 def update_line_yyc(dark_mode, rolling_avg, relayout_data_yyc):
     """CALLBACK: Updates the line charts based on the dark mode selected.
     TRIGGER: Upon page load, toggling the dark mode switch, or changing x-axis timeline by button or zoom.
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :param: rolling_avg (int) Number of hours to do rolling average on each hospital
+    :param: relayout_data_yyc (dict) Data of the current x-axis relay
     :return: (go.Figure), (go.Figure) objects that will be dynamically updated"""
 
     min_date_yyc_local, max_date_yyc_local = get_min_max_date(relayout_data_yyc, df_yyc)
@@ -479,13 +480,14 @@ def update_line_yyc(dark_mode, rolling_avg, relayout_data_yyc):
 # ------------------------------------------------------------------------
 
 @app.callback(Output('line-yeg', 'figure'), [Input('dark-mode-switch', 'value'),
-                                               Input('rolling-avg-hrs', 'value'),
-                                               Input('line-yeg', 'relayoutData')])
+                                             Input('rolling-avg-hrs', 'value'),
+                                             Input('line-yeg', 'relayoutData')])
 def update_line_yeg(dark_mode, rolling_avg, relayout_data_yeg):
     """CALLBACK: Updates the line charts based on the dark mode selected.
     TRIGGER: Upon page load, toggling the dark mode switch, or changing x-axis timeline by button or zoom.
     :param: dark_mode (bool) Whether the plot is done in dark mode or not
     :param: rolling_avg (int) Number of hours to do rolling average on each hospital
+    :param: relayout_data_yyc (dict) Data of the current x-axis relay
     :return: (go.Figure), (go.Figure) objects that will be dynamically updated"""
 
     min_date_yeg_local, max_date_yeg_local = get_min_max_date(relayout_data_yeg, df_yeg)

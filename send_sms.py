@@ -1,5 +1,5 @@
-"""Module for sending SMS messages through Twilio account.
-"""
+"""Module for sending SMS messages through Twilio account."""
+
 import os
 from twilio.rest import Client
 

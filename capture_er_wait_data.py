@@ -67,7 +67,7 @@ class ErWait:
     def _get_div_city(self, doc):
         """Returns a div of the city containing the hospital data.
         :param: doc (str) The HTML source of the page
-        :return: doc.find (str) of the city of the hospital."""
+        :return: doc.find() (str) of the city of the hospital."""
 
         return doc.find("div", class_=f"cityContent-{self.city.lower()}")
 

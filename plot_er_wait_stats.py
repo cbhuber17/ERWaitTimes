@@ -1,6 +1,5 @@
 """Contains routines/functions for plotting the ER wait time data."""
 
-import datetime
 import certifi
 import plotly.offline as pyo
 import plotly.graph_objs as go
