@@ -87,7 +87,15 @@ class ErWait:
         for hospital in city_hospitals_div:
             # Mongo restrictions https://www.mongodb.com/docs/manual/reference/limits/#Restrictions-on-Field-Names
             # No dots (.) in field names (column names)
-            hospitals.append(hospital.find("a").contents[0].replace('.', '*'))
+            try:
+                hospitals.append(hospital.find("a").contents[0].replace('.', '*'))
+            except Exception as e:
+                msg = f"Exception happened in {self.city} _get_hospitals()." \
+                      f"  Trying to append {hospital} in {city_hospitals_div} to try again."
+                print(msg)
+                print(e)
+                continue
+
         return hospitals
 
     # -------------------------------------------------------------------------------------------------
@@ -201,21 +209,18 @@ class ErWait:
             try:
                 # Put it in the parser
                 doc = BeautifulSoup(page, "html.parser")
-
-                hospitals = self._get_hospitals(doc)
-                wait_times = self._get_wait_times(doc)
-
-                # Combine data with current time
-                wait_data, now = self._zip_data_and_current_time(hospitals, wait_times)
-
             except Exception as e:
-                msg = f"Exception happened in {self.city} capture_data() BeautifulSoup(), _get_wait_times()," \
-                      f" _get_wait_times(), _zip_data_and_current_time(). Waiting {POLLING_INTERVAL} to try again."
-                # sms_exception_message(msg, e)
-                print(msg)
-                print(e)
+                msg = f"Exception happened in {self.city} capture_data() BeautifulSoup()." \
+                      f"  Waiting {POLLING_INTERVAL} to try again."
+                sms_exception_message(msg, e)
                 time.sleep(POLLING_INTERVAL)
                 continue
+
+            hospitals = self._get_hospitals(doc)
+            wait_times = self._get_wait_times(doc)
+
+            # Combine data with current time
+            wait_data, now = self._zip_data_and_current_time(hospitals, wait_times)
 
             # Output to csv file
             # TODO: Comment out in production
