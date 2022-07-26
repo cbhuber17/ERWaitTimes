@@ -192,19 +192,30 @@ class ErWait:
 
             # If an exception happens, just skip it for this iteration and continue
             except Exception as e:
-                msg = f"Exception happened in {self.city} capture_data().  Waiting {POLLING_INTERVAL} to try again."
+                msg = f"Exception happened in {self.city} capture_data() _run_driver()." \
+                      f"  Waiting {POLLING_INTERVAL} to try again."
                 sms_exception_message(msg, e)
                 time.sleep(POLLING_INTERVAL)
                 continue
 
-            # Put it in the parser
-            doc = BeautifulSoup(page, "html.parser")
+            try:
+                # Put it in the parser
+                doc = BeautifulSoup(page, "html.parser")
 
-            hospitals = self._get_hospitals(doc)
-            wait_times = self._get_wait_times(doc)
+                hospitals = self._get_hospitals(doc)
+                wait_times = self._get_wait_times(doc)
 
-            # Combine data with current time
-            wait_data, now = self._zip_data_and_current_time(hospitals, wait_times)
+                # Combine data with current time
+                wait_data, now = self._zip_data_and_current_time(hospitals, wait_times)
+
+            except Exception as e:
+                msg = f"Exception happened in {self.city} capture_data() BeautifulSoup(), _get_wait_times()," \
+                      f" _get_wait_times(), _zip_data_and_current_time(). Waiting {POLLING_INTERVAL} to try again."
+                # sms_exception_message(msg, e)
+                print(msg)
+                print(e)
+                time.sleep(POLLING_INTERVAL)
+                continue
 
             # Output to csv file
             # TODO: Comment out in production
