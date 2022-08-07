@@ -139,4 +139,17 @@ The server will start at [http://127.0.0.1:8050/](http://127.0.0.1:8050/)
 
 ## Heroku Deployment
 
+Capturing the data is done at: 
 The app is located at: https://alberta-er-wait-times.herokuapp.com/
+
+### Heroku Procfile
+
+```Procfile```  for [capture_er_wait_data.py](capture_er_wait_data.py):
+```
+web: python capture_er_wait_data.py
+```
+
+```Procfile```  for [dash_er_wait.py](dash_er_wait.py):
+```
+web: gunicorn dash_er_wait:server
+```
