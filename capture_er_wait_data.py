@@ -73,70 +73,54 @@ class ErWait:
 
     # -------------------------------------------------------------------------------------------------
 
-    def _get_hospitals(self, doc):
-        """Returns a list of hospitals available that have ER wait times.
+    def _get_wait_data(self, doc):
+        """Returns the hospital name, wait time, and current time stamp.
         :param: doc (str) The HTML source of the page
-        :return: A list of hospitals (list)"""
+        :return: (dict) containing current time and wait data."""
 
         hospitals = []
-
+        wait_times = []
         div_city = self._get_div_city(doc)
         city_hospitals_div = div_city.find_all(class_="hospitalName")
+        wait_times_div = div_city.find_all(class_="wt-times")
 
-        # Capture hospital names
-        for hospital in city_hospitals_div:
-            # Mongo restrictions https://www.mongodb.com/docs/manual/reference/limits/#Restrictions-on-Field-Names
-            # No dots (.) in field names (column names)
+        for hospital, wait_time in zip(city_hospitals_div, wait_times_div):
+
             try:
                 hospitals.append(hospital.find("a").contents[0].replace('.', '*'))
             except Exception as e:
-                msg = f"Exception happened in {self.city} _get_hospitals()." \
-                      f"  Trying to append {hospital} in {city_hospitals_div} to try again."
+                msg = f"Exception happened in {self.city} _get_wait_data()." \
+                      f"  Trying to append {hospital} in {city_hospitals_div}."
                 print(msg)
                 print(e)
+                hospitals.append(None)
+                wait_times.append(None)
+                sms_exception_message(msg, e)
                 continue
-
-        return hospitals
-
-    # -------------------------------------------------------------------------------------------------
-
-    def _get_wait_times(self, doc):
-        """Returns a list of wait times (in minutes) for each hospital.
-        :param: doc (str) The HTML source of the page
-        :return: A list of wait times (in minutes)"""
-
-        wait_times = []
-        div_city = self._get_div_city(doc)
-
-        wait_times_div = div_city.find_all(class_="wt-times")
-
-        # Capture wait times for each hospital (in minutes to keep it simple)
-        for wait_time in wait_times_div:
 
             wait_time_strong_tags = wait_time.find_all("strong")
 
             if len(wait_time_strong_tags) == 2:
-                hours_wait = int(wait_time_strong_tags[0].string)
-                minutes_wait = int(wait_time_strong_tags[1].string)
-                wait_times.append(hours_wait * MINUTES_PER_HOUR + minutes_wait)
+                try:
+                    hours_wait = int(wait_time_strong_tags[0].string)
+                    minutes_wait = int(wait_time_strong_tags[1].string)
+                    wait_times.append(hours_wait * MINUTES_PER_HOUR + minutes_wait)
+                except Exception as e:
+                    msg = f"Exception happened in {self.city} _get_wait_data()." \
+                          f"  Trying to gather wait data: {wait_time_strong_tags} in {wait_times_div}."
+                    print(msg)
+                    print(e)
+                    wait_times.append(None)
+                    sms_exception_message(msg, e)
+                    continue
             else:
                 wait_times.append(None)
 
-        return wait_times
-
-    # -------------------------------------------------------------------------------------------------
-
-    def _zip_data_and_current_time(self, data1, data2):
-        """Helper function to zip two lists and a dictionary of the current time in one dict.
-        :param: data1 (list)
-        :param: data2 (list)
-        :return: a zipped dict of data1, dat2, and the current time."""
-
-        temp = dict(zip(data1, data2))
+        wait_data = dict(zip(hospitals, wait_times))
         now = datetime.datetime.now().strftime(DATE_TIME_FORMAT)
         current_time = {"time_stamp": now}
 
-        return {**current_time, **temp}, now
+        return {**current_time, **wait_data}, now
 
     # -------------------------------------------------------------------------------------------------
 
@@ -216,11 +200,8 @@ class ErWait:
                 time.sleep(POLLING_INTERVAL)
                 continue
 
-            hospitals = self._get_hospitals(doc)
-            wait_times = self._get_wait_times(doc)
-
             # Combine data with current time
-            wait_data, now = self._zip_data_and_current_time(hospitals, wait_times)
+            wait_data, now = self._get_wait_data(doc)
 
             # Output to csv file
             # TODO: Comment out in production

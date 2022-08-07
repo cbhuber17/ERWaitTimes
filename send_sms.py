@@ -1,7 +1,10 @@
 """Module for sending SMS messages through Twilio account."""
 
 import os
+from datetime import datetime, timedelta
 from twilio.rest import Client
+
+last_sms_time = None
 
 
 def send_sms(body):
@@ -9,23 +12,33 @@ def send_sms(body):
     :param: body (str) The message contents of the SMS.
     :return: message.sid (str)"""
 
+    global last_sms_time
+
     account_sid = os.environ['TWILIO_ACCOUNT_SID']
     auth_token = os.environ['TWILIO_AUTH_TOKEN']
 
-    try:
-        client = Client(account_sid, auth_token)
+    now = datetime.now()
 
-        message = client.messages.create(
-            body=body,
-            from_=os.environ['MY_TWILIO_NUM'],
-            to=os.environ['MY_PHONE_NUM']
-        )
+    if last_sms_time is None or (now - last_sms_time) > timedelta(days=1):
 
-        return message.sid
+        last_sms_time = now
 
-    except Exception as e:
-        print(f"Exception happened in send_sms() attempting to send: {body}.")
-        print(e)
+        try:
+            client = Client(account_sid, auth_token)
+
+            message = client.messages.create(
+                body=body,
+                from_=os.environ['MY_TWILIO_NUM'],
+                to=os.environ['MY_PHONE_NUM']
+            )
+
+            return message.sid
+
+        except Exception as e:
+            print(f"Exception happened in send_sms() attempting to send: {body}.")
+            print(e)
+    else:
+        print(f"Only sending one SMS per day.  Error is: {body}.")
 
 
 # -------------------------------------------------------------------------------------------------
