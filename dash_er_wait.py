@@ -3,6 +3,7 @@ features."""
 
 import datetime
 import dash
+import dateutil
 from dash import dcc
 from dash import html
 from dash import dash_table
@@ -186,8 +187,8 @@ def main_layout(dark_mode):
                                  value=dark_mode,
                                  size=50,
                                  color='orange'),
-                "Enter in number of hours for rolling average of line plots (1-48): ",
-                dcc.Input(id='rolling-avg-hrs', type='number', value=1, min=1, max=48, step=1)
+                "Enter in number of hours for rolling average of line plots (1-48): ",  # Hit enter/click outside box
+                dcc.Input(id='rolling-avg-hrs', type='number', value=1, min=1, max=48, step=1, debounce=True)
             ], id='page-settings'
         ),
         html.Hr(),
@@ -391,63 +392,31 @@ def get_min_max_date(relayout_data, df):
     :param: df (pd.DataFrame) Dataframe of a particular city.
     :return: (str) The min and max dates."""
 
-    date_format = '%Y-%m-%d'
-    date_time_format1 = '%Y-%m-%dT%H:%M:%S'
-    date_time_format2 = '%Y-%m-%d %H:%M:%S.%f'
-    date_time_format3 = '%Y-%m-%dT%H:%M:%S.%f'
-    date_time_format4 = '%Y-%m-%d %H:%M:%S'
+    if relayout_data is not None:
+        if 'xaxis.autorange' in relayout_data:
+            df2 = df.copy()
+            df2 = df2.dropna(axis=1, how='all')
 
-    if relayout_data is None or 'autosize' in relayout_data:
-        min_date_local = max_date_yyc - datetime.timedelta(days=14)  # Default show past 2 weeks
-        max_date_local = max_date_yyc
-    elif 'xaxis.autorange' in relayout_data:
-        df2 = df.copy()
-        df2 = df2.dropna(axis=1, how='all')
+            # Convert all string to datetime objects
+            df2.loc[:, TIME_STAMP_HEADER] = pd.to_datetime(df2[TIME_STAMP_HEADER], format=DATE_TIME_FORMAT)
 
-        # Convert all string to datetime objects
-        df2.loc[:, TIME_STAMP_HEADER] = pd.to_datetime(df2[TIME_STAMP_HEADER], format=DATE_TIME_FORMAT)
+            min_date_local = min(df2[TIME_STAMP_HEADER].dt.date)
+            max_date_local = max(df2[TIME_STAMP_HEADER].dt.date)
 
-        min_date_local = min(df2[TIME_STAMP_HEADER].dt.date)
-        max_date_local = max(df2[TIME_STAMP_HEADER].dt.date)
-
-    else:
-        print(relayout_data)
-        if 'xaxis.range[0]' in relayout_data and 'xaxis.range[1]' in relayout_data:
-
-            if 'T' in relayout_data['xaxis.range[0]'] and '.' in relayout_data['xaxis.range[0]']:
-                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format3)
-            elif ' ' in relayout_data['xaxis.range[0]'] and '.' not in relayout_data['xaxis.range[0]']:
-                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format4)
-            elif 'T' in relayout_data['xaxis.range[0]']:
-                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format1)
-            elif '.' in relayout_data['xaxis.range[0]']:
-                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_time_format2)
-            else:
-                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[0]'], date_format)
-
-            if 'T' in relayout_data['xaxis.range[1]'] and '.' in relayout_data['xaxis.range[1]']:
-                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format3)
-            elif ' ' in relayout_data['xaxis.range[1]'] and '.' not in relayout_data['xaxis.range[1]']:
-                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format4)
-            elif 'T' in relayout_data['xaxis.range[1]']:
-                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format1)
-            elif '.' in relayout_data['xaxis.range[1]']:
-                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_time_format2)
-            else:
-                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range[1]'], date_format)
+        elif 'xaxis.range[0]' in relayout_data and 'xaxis.range[1]' in relayout_data:
+            min_date_local = dateutil.parser.parse(relayout_data['xaxis.range[0]'])
+            max_date_local = dateutil.parser.parse(relayout_data['xaxis.range[1]'])
 
         elif 'xaxis.range' in relayout_data:
-            if 'T' in relayout_data['xaxis.range'][0]:
-                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][0], date_time_format1)
-            else:
-                min_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][0], date_format)
-
-            if 'T' in relayout_data['xaxis.range'][1]:
-                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][1], date_time_format1)
-            else:
-                max_date_local = datetime.datetime.strptime(relayout_data['xaxis.range'][1], date_format)
+            min_date_local = dateutil.parser.parse(relayout_data['xaxis.range'][0])
+            max_date_local = dateutil.parser.parse(relayout_data['xaxis.range'][1])
         else:
-            print(relayout_data)
+            # 'autosize' in relayout_data:
+            min_date_local = max_date_yyc - datetime.timedelta(days=14)  # Default show past 2 weeks
+            max_date_local = max_date_yyc
+    else:
+        min_date_local = max_date_yyc - datetime.timedelta(days=14)  # Default show past 2 weeks
+        max_date_local = max_date_yyc
 
     return min_date_local, max_date_local
 

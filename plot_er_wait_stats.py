@@ -108,7 +108,10 @@ def plot_line(city, min_date, max_date, plot_offline=True, dark_mode=True, rolli
 
         df2[hospital] = df2[hospital].astype("float64")
         df2[hospital] /= MINUTES_PER_HOUR
-        df2[hospital] = df2[hospital].rolling(rolling_avg).mean()
+        df2[hospital] = df2[hospital].rolling(rolling_avg, center=True).mean()  # TODO: Noise in rolling plots > 4hr before July 21
+
+    # Ensure data is sorted by date
+    df2.sort_values(by=TIME_STAMP_HEADER, inplace=True)
 
     traces = [go.Scatter(
         x=df2[TIME_STAMP_HEADER],
@@ -669,7 +672,7 @@ def plot_subplots_hour_violin(city, plot_offline=True, dark_mode=True):
 
 if __name__ == "__main__":
 
-    # plot_line("Calgary", "2022-05-31", "2022-07-24")
+    plot_line("Calgary", "2022-05-31", "2022-08-07")
     # plot_line("Edmonton", "2022-07-01", "2022-07-24")
 
     # plot_hospital_hourly_violin("Calgary", "South Health Campus")
@@ -696,5 +699,5 @@ if __name__ == "__main__":
     # plot_all_hospitals_violin("Calgary")
     # plot_all_hospitals_violin("Edmonton")
 
-    plot_subplots_hour_violin("Calgary")
-    plot_subplots_hour_violin("Edmonton")
+    # plot_subplots_hour_violin("Calgary")
+    # plot_subplots_hour_violin("Edmonton")
