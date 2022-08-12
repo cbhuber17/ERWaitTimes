@@ -359,12 +359,13 @@ def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline
     if df is None:
         return None
 
-    hospital = check_hospital_name(df, hospital)
-
     html_file = city + '_' + hospital + "_violin.html"
 
     # Filter data
     df2 = filter_df(df)
+
+    if '.' in hospital:
+        hospital = hospital.replace('.', '*')
 
     # Filter data by hospital
     df2 = df2[[TIME_STAMP_HEADER, hospital]].copy()
@@ -385,7 +386,7 @@ def plot_hospital_hourly_violin(city, hospital, plot_best_fit=True, plot_offline
         plot_cosine = go.Scatter(x=list(hour_dict.values()), y=cosine_curve_fit, name="Average",
                                  line=dict(width=4, color='red'))
 
-    layout = get_violin_layout(hospital + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Time',
+    layout = get_violin_layout(hospital.replace('*', '.') + f' ER Wait Times<br><sup>Date range: {min_date} to {max_date}</sup>', 'Time',
                                dark_mode)
 
     fig = go.Figure(layout=layout)

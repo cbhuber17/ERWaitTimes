@@ -13,7 +13,7 @@ import pandas as pd
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from plot_er_wait_stats import get_mongodb_df, plot_line, plot_subplots_hour_violin, plot_hospital_hourly_violin, \
-    filter_df, get_wait_data_hour_dict, FONT_FAMILY, TIME_STAMP_HEADER
+    filter_df, get_wait_data_hour_dict, check_hospital_name, FONT_FAMILY, TIME_STAMP_HEADER
 from capture_er_wait_data import URL, MINUTES_PER_HOUR, DATE_TIME_FORMAT
 
 COLOR_MODE_DASH = {'font_color': ('black', 'white'),
@@ -142,6 +142,8 @@ def get_table_stats_container(df, dark_mode):
         if hospital == TIME_STAMP_HEADER:
             continue
 
+        hospital = check_hospital_name(df, hospital)
+
         stats[hospital_header].append(hospital)
         stats[avg_header].append(df[hospital].mean() / MINUTES_PER_HOUR)
         stats[std_header].append(df[hospital].std() / MINUTES_PER_HOUR)
@@ -267,6 +269,8 @@ def get_violin_layout(df, city, hospital, dark_mode, y_arrow_vector):
 
     if df2 is None:
         raise PreventUpdate
+
+    hospital = check_hospital_name(df, hospital)
 
     df3, hour_dict = get_wait_data_hour_dict(df2, hospital)
 
