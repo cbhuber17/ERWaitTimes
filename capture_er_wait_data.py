@@ -40,6 +40,7 @@ class ErWait:
         self.options.add_argument('--headless')
         self.options.add_argument('--disable-gpu')
         self.options.add_argument("--log-level=3")
+        self.options.add_argument('--no-sandbox')
 
         self.stats_file_name = f"{self.city}_hospital_stats.csv"
 
