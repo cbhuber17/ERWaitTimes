@@ -1,4 +1,4 @@
-# ERWaitTimes
+# Alberta ER Wait Times
 A hobby project as an introduction to self-taught data science.  It is a web scraping app to plot ER wait times in Alberta.
 
 ## Table of Contents
@@ -39,10 +39,11 @@ Data is visualized as follows:
 
 Interactive features include:
 * Viewing the page/plots in light or dark mode
-* Comping a rolling average (boxcar filter) based on input hours selected
+* Computing a rolling average (boxcar filter) based on input hours selected
 * Selecting date ranges by clicking relative time buttons
 * Enabling/disabling hospitals in the legend
 * Click-dragging zoom levels for all plots
+* Click-dragging pan of all plots
 * Toolbar control features (save as .png, zoom control, etc.)
 
 Webpage is best viewed on a desktop PC, however it is supported for mobile.  For best results, please rotate phone to landscape orientation. 
@@ -139,7 +140,8 @@ The server will start at [http://127.0.0.1:8050/](http://127.0.0.1:8050/)
 
 ## Heroku Deployment
 
-Capturing the data is done at: 
+Capturing the data is done at: https://capture-ab-er-wait.herokuapp.com/
+
 The app is located at: https://alberta-er-wait-times.herokuapp.com/
 
 ### Heroku Procfile
