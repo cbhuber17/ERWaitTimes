@@ -205,7 +205,7 @@ class ErWait:
 
             # Output to csv file
             # TODO: Comment out in production
-            self._write_csv(wait_data)
+            #self._write_csv(wait_data)
 
             # Output to db
             self._write_db(wait_data)
