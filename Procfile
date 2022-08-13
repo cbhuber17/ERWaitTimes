@@ -1,1 +1,1 @@
-web: python capture_er_wait_data.py
+worker: python capture_er_wait_data.py

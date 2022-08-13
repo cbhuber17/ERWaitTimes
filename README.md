@@ -146,10 +146,18 @@ The app is located at: https://alberta-er-wait-times.herokuapp.com/
 
 ### Heroku Procfile
 
+#### Capture ER Wait Data
 ```Procfile```  for [capture_er_wait_data.py](capture_er_wait_data.py):
 ```
-web: python capture_er_wait_data.py
+worker: python capture_er_wait_data.py
 ```
+Chrome/Chromedriver buildpacks required:
+
+```https://github.com/heroku/heroku-buildpack-google-chrome.git```
+
+```https://github.com/heroku/heroku-buildpack-chromedriver.git```
+
+#### Dash ER Wait
 
 ```Procfile```  for [dash_er_wait.py](dash_er_wait.py):
 ```
