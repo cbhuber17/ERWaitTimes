@@ -185,7 +185,7 @@ class ErWait:
 
             # Intentional delay to handle both city web-drivers accessing at the same time
             if self.city.lower() == "calgary":
-                time.sleep(1)
+                time.sleep(30)
 
             try:
                 # Grab the HTML
