@@ -28,6 +28,8 @@ COLOR_MODE = {'title': ('black', 'white'),
               'an_bgcolor': ('#FFFFE0', 'white'),
               'an_text_color': ('black', 'navy')}
 
+LAST_SMS_TIME = None
+
 
 # -------------------------------------------------------------------------------------------------
 
@@ -35,6 +37,8 @@ def get_mongodb_df(city):
     """Gets the mongo db for the required city collection table.
     :param: city (str) "Calgary" or "Edmonton"
     :return: (pandas.df) DataFrame if successful, None otherwise"""
+
+    global LAST_SMS_TIME
 
     try:
         db_client = MongoClient(MONGO_CLIENT_URL, tlsCAFile=certifi.where())
@@ -53,7 +57,7 @@ def get_mongodb_df(city):
 
     except Exception as e:
         msg = f"Exception happened in get_mongodb_df() for {city}."
-        sms_exception_message(msg, e)
+        LAST_SMS_TIME = sms_exception_message(msg, e, LAST_SMS_TIME)
 
 
 # -------------------------------------------------------------------------------------------------

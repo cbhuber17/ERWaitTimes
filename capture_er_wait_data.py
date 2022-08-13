@@ -24,6 +24,8 @@ URL = "https://www.albertahealthservices.ca/waittimes/waittimes.aspx"
 MONGO_CLIENT_URL = os.environ["MONGO_DB_URL"]
 DB_NAME = 'erWaitTimesDB'
 
+LAST_SMS_TIME = None
+
 
 class ErWait:
     """Class to capture data of a specific city. It is intended to run as separate threads."""
@@ -79,6 +81,8 @@ class ErWait:
         :param: doc (str) The HTML source of the page
         :return: (dict) containing current time and wait data."""
 
+        global LAST_SMS_TIME
+
         hospitals = []
         wait_times = []
         div_city = self._get_div_city(doc)
@@ -96,7 +100,7 @@ class ErWait:
                 print(e)
                 hospitals.append(None)
                 wait_times.append(None)
-                sms_exception_message(msg, e)
+                LAST_SMS_TIME = sms_exception_message(msg, e, LAST_SMS_TIME)
                 continue
 
             wait_time_strong_tags = wait_time.find_all("strong")
@@ -112,7 +116,7 @@ class ErWait:
                     print(msg)
                     print(e)
                     wait_times.append(None)
-                    sms_exception_message(msg, e)
+                    LAST_SMS_TIME = sms_exception_message(msg, e, LAST_SMS_TIME)
                     continue
             else:
                 wait_times.append(None)
@@ -153,6 +157,8 @@ class ErWait:
         :param: data (dict) Data to be written to db.
         :return: None"""
 
+        global LAST_SMS_TIME
+
         try:
             db_client = MongoClient(MONGO_CLIENT_URL, tlsCAFile=certifi.where())
             db = db_client[DB_NAME]
@@ -162,7 +168,7 @@ class ErWait:
 
         except Exception as e:
             msg = f"Exception happened in _write_db() for {self.city} writing data {data}."
-            sms_exception_message(msg, e)
+            LAST_SMS_TIME = sms_exception_message(msg, e, LAST_SMS_TIME)
 
     # -------------------------------------------------------------------------------------------------
 
@@ -171,6 +177,8 @@ class ErWait:
         process.
         :param: None
         :return: None"""
+
+        global LAST_SMS_TIME
 
         # Run forever
         while True:
@@ -187,7 +195,7 @@ class ErWait:
             except Exception as e:
                 msg = f"Exception happened in {self.city} capture_data() _run_driver()." \
                       f"  Waiting {POLLING_INTERVAL} to try again."
-                sms_exception_message(msg, e)
+                LAST_SMS_TIME = sms_exception_message(msg, e, LAST_SMS_TIME)
                 time.sleep(POLLING_INTERVAL)
                 continue
 
@@ -197,7 +205,7 @@ class ErWait:
             except Exception as e:
                 msg = f"Exception happened in {self.city} capture_data() BeautifulSoup()." \
                       f"  Waiting {POLLING_INTERVAL} to try again."
-                sms_exception_message(msg, e)
+                LAST_SMS_TIME = sms_exception_message(msg, e, LAST_SMS_TIME)
                 time.sleep(POLLING_INTERVAL)
                 continue
 

@@ -4,15 +4,12 @@ import os
 from datetime import datetime, timedelta
 from twilio.rest import Client
 
-last_sms_time = None
 
-
-def send_sms(body):
+def send_sms(body, last_sms_time):
     """Sends an SMS using my twilio account.  Used for communicating if an exception happened in production.
     :param: body (str) The message contents of the SMS.
-    :return: message.sid (str)"""
-
-    global last_sms_time
+    :param: last_sms_time (datetime) The last time an SMS was sent.
+    :return: now (datetime) Time of the SMS text. """
 
     account_sid = os.environ['TWILIO_ACCOUNT_SID']
     auth_token = os.environ['TWILIO_AUTH_TOKEN']
@@ -20,8 +17,6 @@ def send_sms(body):
     now = datetime.now()
 
     if last_sms_time is None or (now - last_sms_time) > timedelta(days=1):
-
-        last_sms_time = now
 
         try:
             client = Client(account_sid, auth_token)
@@ -32,24 +27,24 @@ def send_sms(body):
                 to=os.environ['MY_PHONE_NUM']
             )
 
-            return message.sid
-
         except Exception as e:
             print(f"Exception happened in send_sms() attempting to send: {body}.")
             print(e)
     else:
         print(f"Only sending one SMS per day.  Error is: {body}.")
 
+    return now
+
 
 # -------------------------------------------------------------------------------------------------
 
-def sms_exception_message(msg, e):
+def sms_exception_message(msg, e, last_sms_time):
     """Prints the exception to the screen and sends the message/exception details by SMS.
     :param: msg (str) A high-level description of the exception.
     :param: e (Exception) The trace stack error message.
+    :param: last_sms_time (datetime) The last time an SMS was sent.
     :return: None"""
 
     print(msg)
     print(e)
-    print(send_sms(msg))
-    print(send_sms(str(e)))
+    print(send_sms(msg + '\n' + str(e), last_sms_time))
