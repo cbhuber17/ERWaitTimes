@@ -19,6 +19,9 @@ from capture_er_wait_data import URL, MINUTES_PER_HOUR, DATE_TIME_FORMAT
 COLOR_MODE_DASH = {'font_color': ('black', 'white'),
                    'bg_color': ('#ffffd0', '#3a3f44')}
 
+VIOLIN_SUMMARY_YYC_URL = 'violin_summary_yyc'
+VIOLIN_SUMMARY_YEG_URL = 'violin_summary_yeg'
+
 app = dash.Dash(__name__, assets_folder='assets', title='Alberta ER Wait Times', update_title='Please wait...',
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config.suppress_callback_exceptions = True  # Dynamic layout
@@ -214,11 +217,22 @@ def main_layout(dark_mode):
         html.Hr(),
         get_table_stats_container(df_yeg, dark_mode),
         html.Hr(),
-        dcc.Graph(id='violin-yyc', mathjax='cdn', responsive='auto',
-                  figure=plot_subplots_hour_violin("Calgary", False)),
+        html.Div(
+            [
+                html.Span("\U0001F3BB", className="violin_emoji"),
+                html.A(
+                    ["Violin Plot Summary Calgary"], id="violin-link-yyc", href=VIOLIN_SUMMARY_YYC_URL
+                ),
+                html.Span("\U0001F3BB", className="violin_emoji"),
+                html.Br(),
+                html.Span("\U0001F3BB", className="violin_emoji"),
+                html.A(
+                    ["Violin Plot Summary Edmonton"], id="violin-link-yeg", href=VIOLIN_SUMMARY_YEG_URL
+                ),
+                html.Span("\U0001F3BB", className="violin_emoji"),
+            ], id='violin-links'
+        ),
         html.Hr(),
-        dcc.Graph(id='violin-yeg', mathjax='cdn', responsive='auto',
-                  figure=plot_subplots_hour_violin("Edmonton", False)),
         html.Footer(
             [
                 html.Div(
@@ -250,6 +264,27 @@ def main_layout(dark_mode):
             ]
         )
     ], id='main')
+
+    return layout
+
+
+# ------------------------------------------------------------------------
+
+def violin_summary_layout(city, dark_mode):
+    """Returns the violin summary layout of the page.
+    :param: city (str) "Calgary" or "Edmonton"
+    :param: dark_mode (bool) Whether the plot is done in dark mode or not
+    :return: dash HTML layout of the violin summary of the hospitals for the city."""
+
+    city_code = {"Calgary": "yyc",
+                 "Edmonton": "yeg"}
+
+    layout = html.Div(
+        [
+            dcc.Graph(id=f'violin-{city_code[city]}', mathjax='cdn', responsive='auto',
+                      figure=plot_subplots_hour_violin(city, False, dark_mode)),
+        ]
+    )
 
     return layout
 
@@ -340,6 +375,10 @@ def display_page(pathname, dark_mode, screen_size):
 
     if pathname == '/':
         return main_layout(dark_mode)
+    elif VIOLIN_SUMMARY_YYC_URL in pathname:
+        return violin_summary_layout("Calgary", dark_mode)
+    elif VIOLIN_SUMMARY_YEG_URL in pathname:
+        return violin_summary_layout("Edmonton", dark_mode)
     elif hospital_url in yyc_hospitals:
         return get_violin_layout(df_yyc, "Calgary", hospital_name, dark_mode, y_arrow_vector)
     elif hospital_url in yeg_hospitals:

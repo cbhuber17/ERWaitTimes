@@ -38,6 +38,11 @@ h4 {
     justify-content: center;
 }
 
+#violin-links {
+    font-size: 50px;
+    text-align: center;
+}
+
 footer {
     text-align: center;
 }
