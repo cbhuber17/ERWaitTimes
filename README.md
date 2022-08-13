@@ -161,9 +161,21 @@ CLI to scale worker:
 heroku scale worker=1
 ```
 
+Point to this app in Heroku:
+
+```
+git remote set-url heroku https://git.heroku.com/capture-ab-er-wait.git
+```
+
 ### Dash ER Wait
 
 ```Procfile```  for [dash_er_wait.py](dash_er_wait.py):
 ```
 web: gunicorn dash_er_wait:server
+```
+
+Point to this app in Heroku:
+
+```
+git remote set-url heroku https://git.heroku.com/alberta-er-wait-times.git
 ```

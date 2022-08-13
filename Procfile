@@ -1,1 +1,1 @@
-worker: python capture_er_wait_data.py
+web: gunicorn dash_er_wait:server
