@@ -13,676 +13,452 @@
   "screenshots": [],
   "icons": [
     {
-      "src": "blob:https://www.pwabuilder.com/5be93707-5d64-49c6-a8aa-6e4d943c2c7d",
-      "type": "image/png",
-      "sizes": "71x71",
-      "purpose": "any"
+      "src": "windows11/SmallTile.scale-100.png",
+      "sizes": "71x71"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/12beaebc-1830-400d-9994-4184cbdde46e",
-      "type": "image/png",
-      "sizes": "89x89",
-      "purpose": "any"
+      "src": "windows11/SmallTile.scale-125.png",
+      "sizes": "89x89"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/7938a10b-4a47-4205-aae8-39bc1cddc619",
-      "type": "image/png",
-      "sizes": "107x107",
-      "purpose": "any"
+      "src": "windows11/SmallTile.scale-150.png",
+      "sizes": "107x107"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/90cfbb02-501f-4427-9918-8e4961581c93",
-      "type": "image/png",
-      "sizes": "142x142",
-      "purpose": "any"
+      "src": "windows11/SmallTile.scale-200.png",
+      "sizes": "142x142"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/8e290e52-41d2-46e6-b622-52decebfd84d",
-      "type": "image/png",
-      "sizes": "284x284",
-      "purpose": "any"
+      "src": "windows11/SmallTile.scale-400.png",
+      "sizes": "284x284"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3db407e1-89eb-41d0-a018-e5735db0b2b5",
-      "type": "image/png",
-      "sizes": "150x150",
-      "purpose": "any"
+      "src": "windows11/Square150x150Logo.scale-100.png",
+      "sizes": "150x150"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/1ea404c0-ec1f-48d6-9609-f82e37ad7982",
-      "type": "image/png",
-      "sizes": "188x188",
-      "purpose": "any"
+      "src": "windows11/Square150x150Logo.scale-125.png",
+      "sizes": "188x188"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/1f747dc4-ece4-44d4-9cdc-023047f48ae7",
-      "type": "image/png",
-      "sizes": "225x225",
-      "purpose": "any"
+      "src": "windows11/Square150x150Logo.scale-150.png",
+      "sizes": "225x225"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/b2d612e0-d5fd-47bc-9260-77f12cc0b729",
-      "type": "image/png",
-      "sizes": "300x300",
-      "purpose": "any"
+      "src": "windows11/Square150x150Logo.scale-200.png",
+      "sizes": "300x300"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3775936e-a239-4b76-b669-142309750024",
-      "type": "image/png",
-      "sizes": "600x600",
-      "purpose": "any"
+      "src": "windows11/Square150x150Logo.scale-400.png",
+      "sizes": "600x600"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/6dd61410-2075-48fe-9ba0-a0bfeae7f03c",
-      "type": "image/png",
-      "sizes": "310x150",
-      "purpose": "any"
+      "src": "windows11/Wide310x150Logo.scale-100.png",
+      "sizes": "310x150"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/0c94e49e-aab3-452a-abb2-562e46b07625",
-      "type": "image/png",
-      "sizes": "388x188",
-      "purpose": "any"
+      "src": "windows11/Wide310x150Logo.scale-125.png",
+      "sizes": "388x188"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/a7bf430c-40a9-4fdd-aa90-acb43cc60d55",
-      "type": "image/png",
-      "sizes": "465x225",
-      "purpose": "any"
+      "src": "windows11/Wide310x150Logo.scale-150.png",
+      "sizes": "465x225"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/9a75ed2f-f46c-46aa-91a5-e1160bbfdd3c",
-      "type": "image/png",
-      "sizes": "620x300",
-      "purpose": "any"
+      "src": "windows11/Wide310x150Logo.scale-200.png",
+      "sizes": "620x300"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/e2596d4b-a101-46eb-b716-c8e835a8ce9b",
-      "type": "image/png",
-      "sizes": "1240x600",
-      "purpose": "any"
+      "src": "windows11/Wide310x150Logo.scale-400.png",
+      "sizes": "1240x600"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/4161ca58-e4c5-4a92-a1cf-b4d0a05d7209",
-      "type": "image/png",
-      "sizes": "310x310",
-      "purpose": "any"
+      "src": "windows11/LargeTile.scale-100.png",
+      "sizes": "310x310"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/7ca59ea1-ef2c-47f1-8f4b-7ce8d585240b",
-      "type": "image/png",
-      "sizes": "388x388",
-      "purpose": "any"
+      "src": "windows11/LargeTile.scale-125.png",
+      "sizes": "388x388"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/8ab00197-cf86-4108-bf73-aca11cf8e9f6",
-      "type": "image/png",
-      "sizes": "465x465",
-      "purpose": "any"
+      "src": "windows11/LargeTile.scale-150.png",
+      "sizes": "465x465"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/b1d1c79c-c445-4b1d-8801-1b480c3004d7",
-      "type": "image/png",
-      "sizes": "620x620",
-      "purpose": "any"
+      "src": "windows11/LargeTile.scale-200.png",
+      "sizes": "620x620"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/13c0d8db-7f56-4844-8495-a75af2fc3c58",
-      "type": "image/png",
-      "sizes": "1240x1240",
-      "purpose": "any"
+      "src": "windows11/LargeTile.scale-400.png",
+      "sizes": "1240x1240"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/0a4418c6-5031-47b1-b246-01aa6626ad03",
-      "type": "image/png",
-      "sizes": "44x44",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.scale-100.png",
+      "sizes": "44x44"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3c398f91-0032-4136-a4ff-9e0afe3541b5",
-      "type": "image/png",
-      "sizes": "55x55",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.scale-125.png",
+      "sizes": "55x55"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/317cb5d0-107a-445e-bf62-5c55eb0e3156",
-      "type": "image/png",
-      "sizes": "66x66",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.scale-150.png",
+      "sizes": "66x66"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/72a5884d-7c09-4c95-a5b6-3f1299e1dbe6",
-      "type": "image/png",
-      "sizes": "88x88",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.scale-200.png",
+      "sizes": "88x88"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/dd2639d8-b915-425e-9b61-f33f76547360",
-      "type": "image/png",
-      "sizes": "176x176",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.scale-400.png",
+      "sizes": "176x176"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/bcf603c2-42ea-4c63-9e9d-f579f5e7788b",
-      "type": "image/png",
-      "sizes": "50x50",
-      "purpose": "any"
+      "src": "windows11/StoreLogo.scale-100.png",
+      "sizes": "50x50"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/9bc5f426-e1ae-4d85-891d-a59497e955b4",
-      "type": "image/png",
-      "sizes": "63x63",
-      "purpose": "any"
+      "src": "windows11/StoreLogo.scale-125.png",
+      "sizes": "63x63"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3b00fb2c-daa8-4c65-9076-3b8631776007",
-      "type": "image/png",
-      "sizes": "75x75",
-      "purpose": "any"
+      "src": "windows11/StoreLogo.scale-150.png",
+      "sizes": "75x75"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/8b365645-a9cb-44fc-8e27-cfea36697688",
-      "type": "image/png",
-      "sizes": "100x100",
-      "purpose": "any"
+      "src": "windows11/StoreLogo.scale-200.png",
+      "sizes": "100x100"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/63d40dbe-0f54-43bf-ac40-4891bcc88ef8",
-      "type": "image/png",
-      "sizes": "200x200",
-      "purpose": "any"
+      "src": "windows11/StoreLogo.scale-400.png",
+      "sizes": "200x200"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/b79c0124-aae1-4c31-89eb-e2dc505a6cd7",
-      "type": "image/png",
-      "sizes": "620x300",
-      "purpose": "any"
+      "src": "windows11/SplashScreen.scale-100.png",
+      "sizes": "620x300"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/c1944e41-3991-4097-8bfc-08f88f99660d",
-      "type": "image/png",
-      "sizes": "775x375",
-      "purpose": "any"
+      "src": "windows11/SplashScreen.scale-125.png",
+      "sizes": "775x375"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/a2e5d712-b9fe-4115-9413-6959c124227f",
-      "type": "image/png",
-      "sizes": "930x450",
-      "purpose": "any"
+      "src": "windows11/SplashScreen.scale-150.png",
+      "sizes": "930x450"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/0b0f1be9-cce8-4b74-b611-30769371b431",
-      "type": "image/png",
-      "sizes": "1240x600",
-      "purpose": "any"
+      "src": "windows11/SplashScreen.scale-200.png",
+      "sizes": "1240x600"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/f0bb5e85-f80c-4c55-9583-075e8911e7f1",
-      "type": "image/png",
-      "sizes": "2480x1200",
-      "purpose": "any"
+      "src": "windows11/SplashScreen.scale-400.png",
+      "sizes": "2480x1200"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/d924db64-6ed1-4a7f-aa43-42c04b47516e",
-      "type": "image/png",
-      "sizes": "16x16",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-16.png",
+      "sizes": "16x16"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/7dbdf109-dab1-46ec-8d07-e9180dd239d8",
-      "type": "image/png",
-      "sizes": "20x20",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-20.png",
+      "sizes": "20x20"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/da5d6470-31dd-4e97-98d3-e0485ee8ef89",
-      "type": "image/png",
-      "sizes": "24x24",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-24.png",
+      "sizes": "24x24"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/e6a45a7c-0cae-4538-84bf-b3edc7834df2",
-      "type": "image/png",
-      "sizes": "30x30",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-30.png",
+      "sizes": "30x30"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/2b74f712-4fa1-44f7-954e-21e8b6d8269b",
-      "type": "image/png",
-      "sizes": "32x32",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-32.png",
+      "sizes": "32x32"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/e821a6f4-a70e-43d2-a708-1a0175274906",
-      "type": "image/png",
-      "sizes": "36x36",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-36.png",
+      "sizes": "36x36"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/afbbbaa9-db18-4be0-b12c-254ec61439c5",
-      "type": "image/png",
-      "sizes": "40x40",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-40.png",
+      "sizes": "40x40"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/db906c70-2c29-4048-9331-4cf40673d298",
-      "type": "image/png",
-      "sizes": "44x44",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-44.png",
+      "sizes": "44x44"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/c7fc3352-e779-44ac-b432-f02a4d8fd706",
-      "type": "image/png",
-      "sizes": "48x48",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-48.png",
+      "sizes": "48x48"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/a193885a-a959-42ec-8681-370ee32e990c",
-      "type": "image/png",
-      "sizes": "60x60",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-60.png",
+      "sizes": "60x60"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/04fea818-379e-4d54-9f28-d7b810678ce4",
-      "type": "image/png",
-      "sizes": "64x64",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-64.png",
+      "sizes": "64x64"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/f504db04-eba3-4f54-a13b-d4d475ca30c5",
-      "type": "image/png",
-      "sizes": "72x72",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-72.png",
+      "sizes": "72x72"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/aa6089a6-9440-41e0-9a4a-b746cbf5f6ad",
-      "type": "image/png",
-      "sizes": "80x80",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-80.png",
+      "sizes": "80x80"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/44f57f12-ad9d-4642-9592-460f4a47b18a",
-      "type": "image/png",
-      "sizes": "96x96",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-96.png",
+      "sizes": "96x96"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/cb24beee-13c3-410d-85a6-6be07e20d224",
-      "type": "image/png",
-      "sizes": "256x256",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.targetsize-256.png",
+      "sizes": "256x256"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/61df581c-d672-4dc3-99f7-4e3c8fdc85ff",
-      "type": "image/png",
-      "sizes": "16x16",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-16.png",
+      "sizes": "16x16"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/69673853-fba1-42cf-b63c-8010deac4a93",
-      "type": "image/png",
-      "sizes": "20x20",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-20.png",
+      "sizes": "20x20"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/7443be89-d1d5-49c2-8c42-7613514be97f",
-      "type": "image/png",
-      "sizes": "24x24",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-24.png",
+      "sizes": "24x24"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/7220b419-aeb0-468c-ab96-224c92011e2f",
-      "type": "image/png",
-      "sizes": "30x30",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-30.png",
+      "sizes": "30x30"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/430c2d2c-631d-4c11-b597-3a5fb232c221",
-      "type": "image/png",
-      "sizes": "32x32",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-32.png",
+      "sizes": "32x32"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/57d70291-9093-4934-ac3d-4ce741dda06d",
-      "type": "image/png",
-      "sizes": "36x36",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-36.png",
+      "sizes": "36x36"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/63b6ca6b-579e-4b89-9661-cbb586d75722",
-      "type": "image/png",
-      "sizes": "40x40",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-40.png",
+      "sizes": "40x40"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/752fe82d-d8e6-4f80-b778-6a88ebed63b0",
-      "type": "image/png",
-      "sizes": "44x44",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-44.png",
+      "sizes": "44x44"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3925a260-ae8e-45d7-8fff-dabf586e77a4",
-      "type": "image/png",
-      "sizes": "48x48",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-48.png",
+      "sizes": "48x48"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3bac3692-ec11-463a-a1d8-28c2472e67f4",
-      "type": "image/png",
-      "sizes": "60x60",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-60.png",
+      "sizes": "60x60"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/abb2f6c2-7574-48a3-ba64-0b2552343bd0",
-      "type": "image/png",
-      "sizes": "64x64",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-64.png",
+      "sizes": "64x64"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/de9fb512-0a64-4271-bdd9-af0f9e27b437",
-      "type": "image/png",
-      "sizes": "72x72",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-72.png",
+      "sizes": "72x72"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/f5a54894-04d5-4322-9ecf-292b8a06e5da",
-      "type": "image/png",
-      "sizes": "80x80",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-80.png",
+      "sizes": "80x80"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3beec554-2646-4e66-a451-e576301efce7",
-      "type": "image/png",
-      "sizes": "96x96",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-96.png",
+      "sizes": "96x96"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/403846bb-8e38-44c2-babc-3377e06c5550",
-      "type": "image/png",
-      "sizes": "256x256",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-unplated_targetsize-256.png",
+      "sizes": "256x256"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/6203f2c5-9a8e-4c02-8219-5740df731b12",
-      "type": "image/png",
-      "sizes": "16x16",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-16.png",
+      "sizes": "16x16"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/2514096c-d108-4da9-b7bc-5adffb28e378",
-      "type": "image/png",
-      "sizes": "20x20",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-20.png",
+      "sizes": "20x20"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/c56dbc58-ae51-4a18-90aa-19553dfb9017",
-      "type": "image/png",
-      "sizes": "24x24",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-24.png",
+      "sizes": "24x24"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/ba67ce01-09fb-4209-b325-19f1a9bbd087",
-      "type": "image/png",
-      "sizes": "30x30",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-30.png",
+      "sizes": "30x30"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/afad2781-5c0b-4279-8152-86dddd1673ae",
-      "type": "image/png",
-      "sizes": "32x32",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-32.png",
+      "sizes": "32x32"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/9cbfc9cc-0922-45b3-af85-80acbf0d0f5d",
-      "type": "image/png",
-      "sizes": "36x36",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-36.png",
+      "sizes": "36x36"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/6e8c27d9-06f8-440a-a9ec-15d5e7168147",
-      "type": "image/png",
-      "sizes": "40x40",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-40.png",
+      "sizes": "40x40"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/a476540b-d598-4b03-b1af-4e88fb1b498a",
-      "type": "image/png",
-      "sizes": "44x44",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-44.png",
+      "sizes": "44x44"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/c8bcf335-a67b-4e6f-8631-017021074d9c",
-      "type": "image/png",
-      "sizes": "48x48",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-48.png",
+      "sizes": "48x48"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/8231361f-26d3-47c4-a2cd-9a54d402f2f3",
-      "type": "image/png",
-      "sizes": "60x60",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-60.png",
+      "sizes": "60x60"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/5087dcfd-b0de-4ac5-b2ba-d8a5c059f744",
-      "type": "image/png",
-      "sizes": "64x64",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-64.png",
+      "sizes": "64x64"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/9dc1952f-8155-4689-bcd9-c663166333ba",
-      "type": "image/png",
-      "sizes": "72x72",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-72.png",
+      "sizes": "72x72"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/4cadfab5-1a40-4f25-9900-ebda67b3b536",
-      "type": "image/png",
-      "sizes": "80x80",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-80.png",
+      "sizes": "80x80"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/c815bb13-74be-4f85-b1ae-c9f2399fc1eb",
-      "type": "image/png",
-      "sizes": "96x96",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-96.png",
+      "sizes": "96x96"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/d9fed109-b8a6-438d-a422-c11275076d91",
-      "type": "image/png",
-      "sizes": "256x256",
-      "purpose": "any"
+      "src": "windows11/Square44x44Logo.altform-lightunplated_targetsize-256.png",
+      "sizes": "256x256"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/c6286d84-1d98-477c-a322-809ac099a827",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any"
+      "src": "android/android-launchericon-512-512.png",
+      "sizes": "512x512"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/11aa5dc6-cd16-4b26-bf6d-4ccf351530ac",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
+      "src": "android/android-launchericon-192-192.png",
+      "sizes": "192x192"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/10312b7f-78e6-4dff-a3c5-482f8aeebfd9",
-      "type": "image/png",
-      "sizes": "144x144",
-      "purpose": "any"
+      "src": "android/android-launchericon-144-144.png",
+      "sizes": "144x144"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/6623452f-9b23-424d-b5c7-dc61a1cabec7",
-      "type": "image/png",
-      "sizes": "96x96",
-      "purpose": "any"
+      "src": "android/android-launchericon-96-96.png",
+      "sizes": "96x96"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/82d0c216-960e-4b51-a1a4-4eb4e45d5056",
-      "type": "image/png",
-      "sizes": "72x72",
-      "purpose": "any"
+      "src": "android/android-launchericon-72-72.png",
+      "sizes": "72x72"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/79c8515c-1578-4de1-9099-2a34eaac1517",
-      "type": "image/png",
-      "sizes": "48x48",
-      "purpose": "any"
+      "src": "android/android-launchericon-48-48.png",
+      "sizes": "48x48"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/5601bea3-033e-42aa-b397-b688bce4eb4b",
-      "type": "image/png",
-      "sizes": "16x16",
-      "purpose": "any"
+      "src": "ios/16.png",
+      "sizes": "16x16"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/f347d7e3-976a-4c11-87fd-6d0c084555c4",
-      "type": "image/png",
-      "sizes": "20x20",
-      "purpose": "any"
+      "src": "ios/20.png",
+      "sizes": "20x20"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/bc721815-2eb8-4064-8ad7-9291b64a0001",
-      "type": "image/png",
-      "sizes": "29x29",
-      "purpose": "any"
+      "src": "ios/29.png",
+      "sizes": "29x29"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/14678dd3-8c49-4c8d-afdb-02378c1cd2ec",
-      "type": "image/png",
-      "sizes": "32x32",
-      "purpose": "any"
+      "src": "ios/32.png",
+      "sizes": "32x32"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/5915ab8f-78ec-4db7-a78f-b7aeb23e3416",
-      "type": "image/png",
-      "sizes": "40x40",
-      "purpose": "any"
+      "src": "ios/40.png",
+      "sizes": "40x40"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/f533c899-2e8d-4d41-a512-7eee1e0ee048",
-      "type": "image/png",
-      "sizes": "50x50",
-      "purpose": "any"
+      "src": "ios/50.png",
+      "sizes": "50x50"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/9507325d-b11b-4c87-82c4-64e4a80e3a37",
-      "type": "image/png",
-      "sizes": "57x57",
-      "purpose": "any"
+      "src": "ios/57.png",
+      "sizes": "57x57"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/f575f68f-b323-4f11-b2f9-9681ba160b7b",
-      "type": "image/png",
-      "sizes": "58x58",
-      "purpose": "any"
+      "src": "ios/58.png",
+      "sizes": "58x58"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/18632558-e2d7-4ee2-b36a-c57c8c7b8208",
-      "type": "image/png",
-      "sizes": "60x60",
-      "purpose": "any"
+      "src": "ios/60.png",
+      "sizes": "60x60"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/16335815-ea5a-4fb3-83cd-751f49681674",
-      "type": "image/png",
-      "sizes": "64x64",
-      "purpose": "any"
+      "src": "ios/64.png",
+      "sizes": "64x64"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/00229532-66ef-4e65-aa27-9d749880a47c",
-      "type": "image/png",
-      "sizes": "72x72",
-      "purpose": "any"
+      "src": "ios/72.png",
+      "sizes": "72x72"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/124de968-4ca5-42c1-8e93-d39b3fe233c1",
-      "type": "image/png",
-      "sizes": "76x76",
-      "purpose": "any"
+      "src": "ios/76.png",
+      "sizes": "76x76"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/a4d70bec-33ff-43d3-9bfd-8de71137253d",
-      "type": "image/png",
-      "sizes": "80x80",
-      "purpose": "any"
+      "src": "ios/80.png",
+      "sizes": "80x80"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/91d78981-e432-4dbc-ac45-ca85bbbaf889",
-      "type": "image/png",
-      "sizes": "87x87",
-      "purpose": "any"
+      "src": "ios/87.png",
+      "sizes": "87x87"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/a7ae8c24-4ccd-45eb-ac91-459452df5097",
-      "type": "image/png",
-      "sizes": "100x100",
-      "purpose": "any"
+      "src": "ios/100.png",
+      "sizes": "100x100"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/3bf8fec9-0027-49eb-8753-4e67bf44751f",
-      "type": "image/png",
-      "sizes": "114x114",
-      "purpose": "any"
+      "src": "ios/114.png",
+      "sizes": "114x114"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/14742f58-6778-4cad-a694-d585008fd177",
-      "type": "image/png",
-      "sizes": "120x120",
-      "purpose": "any"
+      "src": "ios/120.png",
+      "sizes": "120x120"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/500dbfcf-f339-4c0b-8531-36dbb7326377",
-      "type": "image/png",
-      "sizes": "128x128",
-      "purpose": "any"
+      "src": "ios/128.png",
+      "sizes": "128x128"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/c30f1aa0-b0ee-4b3d-809c-480ef853d625",
-      "type": "image/png",
-      "sizes": "144x144",
-      "purpose": "any"
+      "src": "ios/144.png",
+      "sizes": "144x144"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/028b2f5e-aaa1-4b4c-9b54-e973f27edb41",
-      "type": "image/png",
-      "sizes": "152x152",
-      "purpose": "any"
+      "src": "ios/152.png",
+      "sizes": "152x152"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/b4a13f22-dabd-453d-a2e6-f43b79bdff99",
-      "type": "image/png",
-      "sizes": "167x167",
-      "purpose": "any"
+      "src": "ios/167.png",
+      "sizes": "167x167"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/b6168b0e-52c3-4598-b38a-99066c3df9ab",
-      "type": "image/png",
-      "sizes": "180x180",
-      "purpose": "any"
+      "src": "ios/180.png",
+      "sizes": "180x180"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/d658c44e-59b1-4293-8c9b-f3f0f1672a19",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
+      "src": "ios/192.png",
+      "sizes": "192x192"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/9c5f3522-b5d7-43bc-a176-59f495f68033",
-      "type": "image/png",
-      "sizes": "256x256",
-      "purpose": "any"
+      "src": "ios/256.png",
+      "sizes": "256x256"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/cc588f16-ce62-4002-ac35-ef25ece156ee",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any"
+      "src": "ios/512.png",
+      "sizes": "512x512"
     },
     {
-      "src": "blob:https://www.pwabuilder.com/1e9a77bc-76a3-455c-a30c-e7de6eecc702",
-      "type": "image/png",
-      "sizes": "1024x1024",
-      "purpose": "any"
+      "src": "ios/1024.png",
+      "sizes": "1024x1024"
     }
   ],
   "shortcuts": []
