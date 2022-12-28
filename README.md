@@ -14,7 +14,7 @@ A hobby project as an introduction to self-taught data science. It is a web scra
 
 Data was collected on my local machine before being published to [Heroku](#heroku-deployment). The app uses the following:
 
-- Python 3.9.7
+- Python 3.9.13
 - Data captured every hour for each city/hospital.
 - Plotly and Dash for visual display of the ER wait data.
 - MongoDB for storage and retrieval of the data.
